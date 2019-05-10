@@ -68,6 +68,12 @@
           var lifecycleStatusMessageTitle = 'CRM Demo';
           var lifecycleStatusMessageId = 'CrmDemo-statusMsg';
           
+          function logEvent(logText) {
+                    $tgt = jQuery('.lifecycle-events .log')
+                    var newItem = $('<li>' + logText + '</li>');
+                    $tgt.prepend(newItem);
+          }
+            
           logEvent('Client SDK version: ' + ClientApp.version);
           logEvent(ClientApp.about());
           logEvent('------------------------------------------------');
@@ -148,12 +154,6 @@
                     var newItem = $('<li>' + logText + '</li>');
                     newItem.addClass(incommingEvent ? 'incomming' : 'outgoing');
 
-                    $tgt.prepend(newItem);
-                }
-              
-                function logEvent(logText) {
-                    $tgt = jQuery('.lifecycle-events .log')
-                    var newItem = $('<li>' + logText + '</li>');
                     $tgt.prepend(newItem);
                 }
             });
