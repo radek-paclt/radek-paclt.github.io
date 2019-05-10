@@ -80,8 +80,8 @@
           
                 let myClientApp = new window.purecloud.apps.ClientApp({pcEnvironmentQueryParam: 'env'});
 
-                logEvent('Client SDK version: ' + myClientApp.version);
-                logEvent(myClientApp.about());
+                logEvent('Client SDK version: ' + window.purecloud.apps.ClientApp.version);
+                logEvent(window.purecloud.apps.ClientApp.about());
                 logEvent('------------------------------------------------');
               
                 myClientApp.lifecycle.addBootstrapListener(() => {
