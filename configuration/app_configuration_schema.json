@@ -1,0 +1,99 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "PureCloud Custom Client Application Advanced Configuration",
+  "description": "Defines the advanced configuration for PureCloud Custom Client Applications",
+  "type": "object",
+  "properties": {
+    "i10n": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "title": "Translations",
+      "description": "Configuration object for application strings displayed within PureCloud",
+      "patternProperties": {
+        "^[a-zA-Z]+(-[a-zA-Z]+)*$": {
+          "type": "object",
+          "title": "LangTag",
+          "description": "BCP 47 Language Tag for the language you want to translate",
+          "properties": {
+            "name": {
+              "type": "string",
+              "title": "Translated Application Name",
+              "description": "Translated application name in this LangTag"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "lifecycle": {
+      "type": "object",
+      "title": "Application Lifecycle Configuration",
+      "description": "Configuration relating to the lifecycle of the Application",
+      "properties": {
+        "ephemeral": {
+          "type": "boolean",
+          "title": "Ephemeral Application",
+          "description": "Set to true to indicate that application is stateless or can be quickly restored"
+        },
+        "hooks": {
+          "type": "object",
+          "title": "Lifecycle Hooks",
+          "description": "Opt-in hooks to integrate with the PureCloud Apps lifecycle",
+          "properties": {
+            "bootstrap": {
+              "type": "boolean",
+              "title": "Enable Bootstap Hook",
+              "description": "When enabled, PureCloud emits an event when the application should bootstrap and will wait for a success event (will timeout)"
+            },
+            "focus": {
+              "type": "boolean",
+              "title": "Enable Focus Hook",
+              "description": "When enabled, PureCloud emits an event when an application receives focus"
+            },
+            "blur": {
+              "type": "boolean",
+              "title": "Enable Blur Hook",
+              "description": "When enabled, PureCloud emits an event when an application loses focus"
+            },
+            "stop": {
+              "type": "boolean",
+              "title": "Enable Stop Hook",
+              "description": "When enabled, PureCloud emits an event when an application should tear down and will wait for a success event (will timeout)"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "icon": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "title": "Icon URLs",
+      "description": "URLs to assets to be presented as icons (approx. 24x24 pixels)",
+      "properties": {
+        "vector": {
+          "type": "string",
+          "title": "Vector URL",
+          "description": "URL to a vector-based icon",
+          "pattern": "^https?://(localhost|[^-./?#\\s][^./?#\\s]*(\\.[^-./?#\\s][^./?#\\s]*)+)(:\\d{2,5})?([/?#][^\\s]*)?$"
+        }
+      },
+      "patternProperties": {
+        "^\\d+x\\d+$": {
+          "type": "string",
+          "title": "Raster URL",
+          "description": "URL to a raster-based icon (devicePixelRatio will be used)",
+          "pattern": "^https?://(localhost|[^-./?#\\s][^./?#\\s]*(\\.[^-./?#\\s][^./?#\\s]*)+)(:\\d{2,5})?([/?#][^\\s]*)?$"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
