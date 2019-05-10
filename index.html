@@ -74,14 +74,16 @@
                     $tgt.prepend(newItem);
           }
             
-          logEvent('Client SDK version: ' + ClientApp.version);
-          logEvent(ClientApp.about());
-          logEvent('------------------------------------------------');
+          
             
           jQuery(function () {
           
                 let myClientApp = new window.purecloud.apps.ClientApp({pcEnvironmentQueryParam: 'env'});
 
+                logEvent('Client SDK version: ' + myClientApp.version);
+                logEvent(myClientApp.about());
+                logEvent('------------------------------------------------');
+              
                 myClientApp.lifecycle.addBootstrapListener(() => {
                     logLifecycleEvent('Lifecycle Event: bootstrap', true);
 
