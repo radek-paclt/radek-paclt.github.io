@@ -1,3 +1,15 @@
 {
-  "$schema": "./app_configuration_schema.json"
+  "$schema": "./app_configuration_schema.json",
+  "icon": {
+    "vector": "https://radek-paclt.github.io/icons/app-icon.svg"
+  },
+  "lifecycle": {
+    "ephemeral": true,
+    "hooks": {
+      "blur": true,
+      "bootstrap": true,
+      "focus": true,
+      "stop": true
+    }
+  }
 }
