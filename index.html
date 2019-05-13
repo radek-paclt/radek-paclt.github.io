@@ -68,10 +68,22 @@
           var lifecycleStatusMessageTitle = 'CRM Demo';
           var lifecycleStatusMessageId = 'CrmDemo-statusMsg';
           
+          function logEvent(logText) {
+                    $tgt = jQuery('.lifecycle-events .log')
+                    var newItem = $('<li>' + logText + '</li>');
+                    $tgt.prepend(newItem);
+          }
+            
+          
+            
           jQuery(function () {
           
                 let myClientApp = new window.purecloud.apps.ClientApp({pcEnvironmentQueryParam: 'env'});
 
+                logEvent('Client SDK version: ' + window.purecloud.apps.ClientApp.version);
+                logEvent(window.purecloud.apps.ClientApp.about());
+                logEvent('------------------------------------------------');
+              
                 myClientApp.lifecycle.addBootstrapListener(() => {
                     logLifecycleEvent('Lifecycle Event: bootstrap', true);
 
@@ -104,7 +116,7 @@
                 myClientApp.lifecycle.addFocusListener(onAppFocus);
 
                 function onAppBlur () {
-                    logLifecycleEvent('App Lifecycle Event: blur', true);
+                    logLifecycleEvent('Lifecycle Event: blur', true);
 
                     myClientApp.alerting.showToastPopup(
                         lifecycleStatusMessageTitle,
