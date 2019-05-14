@@ -6,7 +6,10 @@
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css" integrity="sha384-aUGj/X2zp5rLCbBxumKTCw2Z50WgIr1vs/PFN4praOTvYXWlVyh2UtNUU0KAUhAX" crossorigin="anonymous">
         <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
         <script src="https://sdk-cdn.mypurecloud.com/client-apps/1.0.0/purecloud-client-app-sdk.js"></script>
-        <script type="text/javascript" src="js/didata.purecloud.clientapp.js"></script>
+        <script src="https://sdk-cdn.mypurecloud.com/javascript/27.0.0/purecloud-platform-client-v2.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
+        <script type="text/javascript" src="js/didata.purecloud.clientapp.js"></script>   
+        
 
         <style>
             body {
@@ -74,7 +77,19 @@
                     $tgt.prepend(newItem);
           }
             
+          const clientId = 'c3853eb7-e2f3-402b-95d3-22491e80c996';
+          const redirectUri = window.location.href;
           
+          // Set purecloud objects
+          const platformClient = require('platformClient');
+          const client = platformClient.ApiClient.instance;
+          const conversationsApi = new platformClient.ConversationsApi();
+          const notificationsApi = new platformClient.NotificationsApi();
+          const usersApi = new platformClient.UsersApi();
+          
+          // Set PureCloud settings
+          client.setEnvironment('mypurecloud.de');
+          client.setPersistSettings(true, 'crm_test_app');
             
           jQuery(function () {
           
