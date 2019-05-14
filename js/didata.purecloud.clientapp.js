@@ -22,13 +22,15 @@ $(document).ready(() => {
 	// Authenticate with PureCloud
 	client.loginImplicitGrant(clientId, redirectUri)
 		.then(() => {
-			console.log('Logged in ');
+			console.log('Logged in');
+      logApiEvent('Agent logged in');
 
 			// Get authenticated user's info
 			return usersApi.getUsersMe();
 		})
 		.then((userMe) => {
 			console.log('userMe: ', userMe);
+      logApiEvent(JSON.stringify(userMe));
 			me = userMe;
 
 			// Create notification channel
@@ -36,6 +38,7 @@ $(document).ready(() => {
 		})
 		.then((channel) => {
 			console.log('channel: ', channel);
+      logApiEvent(JSON.stringify(channel));
 			notificationChannel = channel;
 
 			// Set up web socket
@@ -53,6 +56,12 @@ $(document).ready(() => {
 		.catch((err) => console.error(err));
 });
 
+function logApiEvent(logText) {
+          $tgt = jQuery('.lifecycle-events .log')
+          var newItem = $('<li>' + logText + '</li>');
+          $tgt.prepend(newItem);
+}
+
 // Handle incoming PureCloud notification from WebSocket
 function handleNotification(message) {
 	// Parse notification string to a JSON object
@@ -69,6 +78,27 @@ function handleNotification(message) {
 		return;
 	} else {
 		console.debug('Conversation notification: ', notification);
+    if (isConversationDisconnected(notification.eventBody))
+		  logApiEvent('interaction finished');;
+  	else
+      logConversation(notification.eventBody);
 	}
+}
 
+function logConversation(conversation) {
+	conversation.participants.forEach((participant) => {
+    logApiEvent(participant.calls[0].self.addressNormalized + '/' + participant.calls[0].direction + '/' + participant.calls[0].state);
+	});
+}
+
+function isConversationDisconnected(conversation) {
+	let isConnected = false;
+	conversation.participants.some((participant) => {
+		if (participant.state !== 'disconnected') {
+			isConnected = true;
+			return true;
+		}
+	});
+
+	return !isConnected;
 }
