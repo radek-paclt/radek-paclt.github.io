@@ -44,15 +44,44 @@
                 text-align: center;
             }
         </style>
+        
+        <script language="javascript" type="text/javascript">
+        function MyPage_onload() {
+            appendText("--- URL parameters ------------------------------------------------");
+            appendText("\r\n");
+
+            window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
+                appendText("Key: " + key + ", Value: " + value);
+                appendText("\r\n");
+            });
+        }
+
+        function setText(txt) {
+            myTextBox.value = txt;
+        }
+
+        function appendText(txt) {
+            myTextBox.value = myTextBox.value + txt;
+        }
+
+    </script>
           
     </head>
 
-    <body>
+    <body onload="MyPage_onload();">
         <noscript>
             For full functionality of this site it is necessary to enable JavaScript. Here are the <a href="http://www.enable-javascript.com/" target="_blank">instructions how to enable JavaScript in your web browser</a>.
         </noscript>
 
         <h1>SCRIPT DEMO</h1>
+        
+        <table>
+        <tr>
+            <td>
+                <textarea id="myTextBox" rows="40" cols="80"></textarea>
+            </td>
+        </tr>
+    </table>
         
     </body>
 </html>
