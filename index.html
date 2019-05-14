@@ -77,20 +77,6 @@
                     $tgt.prepend(newItem);
           }
             
-          const clientId = 'c3853eb7-e2f3-402b-95d3-22491e80c996';
-          const redirectUri = window.location.href;
-          
-          // Set purecloud objects
-          const platformClient = require('platformClient');
-          const client = platformClient.ApiClient.instance;
-          const conversationsApi = new platformClient.ConversationsApi();
-          const notificationsApi = new platformClient.NotificationsApi();
-          const usersApi = new platformClient.UsersApi();
-          
-          // Set PureCloud settings
-          client.setEnvironment('mypurecloud.de');
-          client.setPersistSettings(true, 'crm_test_app');
-            
           jQuery(function () {
           
                 let myClientApp = new window.purecloud.apps.ClientApp({pcEnvironmentQueryParam: 'env'});
