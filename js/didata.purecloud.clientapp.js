@@ -22,7 +22,7 @@ $(document).ready(() => {
 	// Authenticate with PureCloud
 	client.loginImplicitGrant(clientId, redirectUri)
 		.then(() => {
-			console.log('Logged in');
+			console.log('Logged in ');
 
 			// Get authenticated user's info
 			return usersApi.getUsersMe();
