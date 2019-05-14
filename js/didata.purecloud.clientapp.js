@@ -49,8 +49,6 @@ $(document).ready(() => {
 		})
 		.then((topicSubscriptions) => {
 			console.log('topicSubscriptions: ', topicSubscriptions);
-      
-			});
 		})
 		.catch((err) => console.error(err));
 });
