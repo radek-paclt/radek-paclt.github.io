@@ -79,7 +79,7 @@ function handleNotification(message) {
 	} else {
 		console.debug('Conversation notification: ', notification);
     if (isConversationDisconnected(notification.eventBody))
-		  logApiEvent('interaction finished');;
+		  logApiEvent('interaction finished');
   	else
       logConversation(notification.eventBody);
 	}
