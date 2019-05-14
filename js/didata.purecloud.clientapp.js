@@ -62,6 +62,7 @@ function logApiEvent(logText) {
           $tgt.prepend(newItem);
 }
 
+
 // Handle incoming PureCloud notification from WebSocket
 function handleNotification(message) {
 	// Parse notification string to a JSON object
