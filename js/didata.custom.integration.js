@@ -7,6 +7,7 @@ const client = platformClient.ApiClient.instance;
 const conversationsApi = new platformClient.ConversationsApi();
 const notificationsApi = new platformClient.NotificationsApi();
 const usersApi = new platformClient.UsersApi();
+const presenceApi = new platformClient.PresenceApi();
 
 // Set PureCloud settings
 client.setEnvironment('mypurecloud.de');
@@ -61,7 +62,7 @@ $(document).ready(() => {
       logApiEvent('Přihlášen agent ' + userMe.name + ' [' + userMe.username + ']');
 			me = userMe;
       
-      logApiEvent('Aktuální stav agenta: ' + me.presence.presenceDefinition.systemPresence);
+      logApiEvent('Aktuální stav agenta: ' + me.presence.presenceDefinition.systemPresence.toUpperCase();
 
 			return notificationsApi.postNotificationsChannels();
 		})
@@ -130,7 +131,28 @@ function isConversationDisconnected(conversation) {
 }
 
 function changeAgentState(state){
-  logApiEvent('Požádáno o změnu stavu agenta: ' + state);
+  
+  presenceApi.getPresencedefinitions().then(function(presenceData){
+    for (var x=0; x< Object.keys(presenceData.entities).length; x++){
+        var presence = presenceData.entities[x];
+
+        if(presence.systemPresence.toUpperCase() === state.toUpperCase(){
+          console.log("found requested presence " + presence.id);
+          var requestedPresence = presence.id;
+          var newPresence = {
+              "presenceDefinition" : {
+                  "id": requestedPresence
+              }
+          };
+        
+          presenceApi.getUserPresence(userId, 'PURECLOUD', newPresence);
+          console.log("new presence sent " + newPresence);
+        }
+    }
+  });
+  
+  
+  logApiEvent('Požádáno o změnu stavu agenta: ' + state.toUpperCase();
   console.log("Change agent state requested");
 }
 
