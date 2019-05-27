@@ -1,168 +1,572 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>CRM Demo</title>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css" integrity="sha384-aUGj/X2zp5rLCbBxumKTCw2Z50WgIr1vs/PFN4praOTvYXWlVyh2UtNUU0KAUhAX" crossorigin="anonymous">
-        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-        <script src="https://sdk-cdn.mypurecloud.com/client-apps/1.0.0/purecloud-client-app-sdk.js"></script>
-        <script src="https://sdk-cdn.mypurecloud.com/javascript/27.0.0/purecloud-platform-client-v2.min.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
-        <script type="text/javascript" src="js/didata.purecloud.clientapp.js"></script>   
-        
+<html lang="en">
 
-        <style>
-            body {
-                margin-left: 20px;
-            }
+<head>
 
-            .log {
-                overflow: auto;
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
 
-                height: 25em;
+  <title>DimensionData DEMO page</title>
 
-                line-height: 1.5em;
-            }
+  <!-- Custom fonts for this theme -->
+  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+   
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="https://sdk-cdn.mypurecloud.com/client-apps/1.0.0/purecloud-client-app-sdk.js"></script>
+  <script src="https://sdk-cdn.mypurecloud.com/javascript/27.0.0/purecloud-platform-client-v2.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
+  <script type="text/javascript" src="js/didata.custom.integration.js"></script> 
 
-            section {
-                margin-top: 2em;
-                padding-left: 3em;
-            }
+  <!-- Theme CSS -->
+  <link href="css/freelancer.css" rel="stylesheet">
 
-            section h1 {
-                font-size: 2em;
-            }
+</head>
 
-            ul.lifecycle-event-log li.incomming::before {
-                content: '↙ ';
-                color: #FF0000;
-            }
-            ul.lifecycle-event-log li.outgoing::before {
-                content: '↗ ';
-                color: #00FF00;
-            }
+<body id="page-top" onload="Page_Loaded();">
 
-            footer {
-                position: fixed;
-                bottom: 0;
-                width: 100%;
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg bg-secondary text-uppercase fixed-top" id="mainNav">
+    <div class="container">
+      <img src="img/dd_logo_large.png" alt=""> <a class="navbar-brand js-scroll-trigger" href="#page-top">DimensionData DEMO</a>
+      <button class="navbar-toggler navbar-toggler-right text-uppercase font-weight-bold bg-primary text-white rounded" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        Menu
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item mx-0 mx-lg-1">
+            <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#portfolio">integrace</a>
+          </li>
+          <li class="nav-item mx-0 mx-lg-1">
+            <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#makecall">nový hovor</a>
+          </li>
+          <li class="nav-item mx-0 mx-lg-1">
+            <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#notifications">Notifikace</a>
+          </li>     
+          <li class="nav-item mx-0 mx-lg-1">
+            <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#changestate">Změna stavu</a>
+          </li> 
+        </ul>
+      </div>
+    </div>
+  </nav>
 
-                text-align: center;
-            }
-        </style>
-          
-    </head>
+  <!-- Masthead -->
+  <header class="masthead bg-secondary text-white text-center">
+    <div class="container d-flex align-items-center flex-column">
 
-    <body>
-        <noscript>
-            For full functionality of this site it is necessary to enable JavaScript. Here are the <a href="http://www.enable-javascript.com/" target="_blank">instructions how to enable JavaScript in your web browser</a>.
-        </noscript>
+      <!-- Masthead Heading -->
+      <h1 class="masthead-heading text-uppercase mb-0">Purecloud integrace</h1>
 
-        <h1>CRM DEMO</h1>
-        <hr>
+      <!-- Icon Divider -->
+      <div class="divider-custom divider-light">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon">
+          <i class="fas fa-star"></i>
+        </div>
+        <div class="divider-custom-line"></div>
+      </div>
 
-        <section class="lifecycle-events">
-            <ul class="log lifecycle-event-log">
-            </ul>
-        </section>
-        
-        <script type="text/javascript">
+      <!-- Masthead Subheading -->
+      <p class="masthead-subheading font-weight-light mb-0">DimensionData Czech</p>
 
-          var lifecycleStatusMessageTitle = 'CRM Demo';
-          var lifecycleStatusMessageId = 'CrmDemo-statusMsg';
-          
-          function logEvent(logText) {
-                    $tgt = jQuery('.lifecycle-events .log')
-                    var newItem = $('<li>' + logText + '</li>');
-                    $tgt.prepend(newItem);
-          }
-            
-          jQuery(function () {
-          
-                let myClientApp = new window.purecloud.apps.ClientApp({pcEnvironmentQueryParam: 'env'});
+    </div>
+  </header>
 
-                logEvent('Client SDK version: ' + window.purecloud.apps.ClientApp.version);
-                logEvent(window.purecloud.apps.ClientApp.about());
-                logEvent('------------------------------------------------');
+  <!-- Portfolio Section -->
+  <section class="page-section portfolio" id="portfolio">
+    <div class="container">
+
+      <!-- Portfolio Section Heading -->
+      <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">úvodem</h2>
+
+      <!-- Icon Divider -->
+      <div class="divider-custom">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon">
+          <i class="fas fa-star"></i>
+        </div>
+        <div class="divider-custom-line"></div>
+      </div>
+
+      <!-- Portfolio Grid Items -->
+      <div class="row">
+
+      <div class="row">
+        <div class="col-lg-4 ml-auto">
+          <p class="lead">Backend integrací je myšlo takové napojení, které nevyžaduje uživatelskou integraci CRM aplikace do prostředí agentské aplikace. Příkladem se může jednat o synchronizaci dat nebo poskytnutí vstupů pro rozhodování v routingu.</p>
+        </div>
+        <div class="col-lg-4 mr-auto">
+          <p class="lead">Frontend integrací je myšlo takové napojení, které umožňuje agentovi náhled CRM aplikace přímo v prostředí agentské aplikace. Alternativou může být napojení, kdy agentské aplikace se vloží přímo do CRM.</p>
+        </div>
+      </div>
+      
+      <div class="divider-custom">
+      </div>
+
+        <!-- Portfolio Item 1 -->
+        <div class="col-md-6 col-lg-4">
+          <div class="portfolio-item mx-auto text-center" data-toggle="modal" data-target="#integrationModal1">
+            <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
+              <div class="portfolio-item-caption-content text-center text-white">
+                <i class="fas fa-plus fa-3x"></i>
+              </div>
               
-                myClientApp.lifecycle.addBootstrapListener(() => {
-                    logLifecycleEvent('Lifecycle Event: bootstrap', true);
+            </div>
+            <img class="img-fluid" src="img/portfolio/notifications.png" alt="">
+          </div>
+        </div>
 
-                    // Simulating bootstrap delay of 500ms
-                    window.setTimeout(() => {
-                        myClientApp.lifecycle.bootstrapped();
+        <!-- Portfolio Item 2 -->
+        <div class="col-md-6 col-lg-4">
+          <div class="portfolio-item mx-auto text-center" data-toggle="modal" data-target="#integrationModal2">
+            <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
+              <div class="portfolio-item-caption-content text-center text-white">
+                <i class="fas fa-plus fa-3x"></i>
+              </div>
+            </div>
+            <img class="img-fluid" src="img/portfolio/notifications.png" alt="">
+          </div>
+        </div>
 
-                        myClientApp.alerting.showToastPopup(
-                            lifecycleStatusMessageTitle,
-                            'Bootstrap Completed', {
-                                id: lifecycleStatusMessageId,
-                                type: 'success'
-                            }
-                        );
+        <!-- Portfolio Item 3 -->
+        <div class="col-md-6 col-lg-4">
+          <div class="portfolio-item mx-auto text-center" data-toggle="modal" data-target="#integrationModal3">
+            <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
+              <div class="portfolio-item-caption-content text-center text-white">
+                <i class="fas fa-plus fa-3x"></i>
+              </div>
+            </div>
+            <img class="img-fluid" src="img/portfolio/notifications.png" alt="">
+          </div>
+        </div>
 
-                        logLifecycleEvent('Notified PC of Successful App Bootstrap', false);
-                    }, 500);
-            });
+        <!-- Portfolio Item 1 -->
+        <div class="col-md-6 col-lg-4">
+          <div class="portfolio-item mx-auto text-center" data-toggle="modal" data-target="#integrationModal4">
+            <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
+              <div class="portfolio-item-caption-content text-center text-white">
+                <i class="fas fa-plus fa-3x"></i>
+              </div>
+              
+            </div>
+            <img class="img-fluid" src="img/portfolio/notifications.png" alt="">
+          </div>
+        </div>
 
-                function onAppFocus () {
-                    logLifecycleEvent('Lifecycle Event: focus', true);
+        <!-- Portfolio Item 2 -->
+        <div class="col-md-6 col-lg-4">
+          <div class="portfolio-item mx-auto text-center" data-toggle="modal" data-target="#integrationModal5">
+            <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
+              <div class="portfolio-item-caption-content text-center text-white">
+                <i class="fas fa-plus fa-3x"></i>
+              </div>
+            </div>
+            <img class="img-fluid" src="img/portfolio/notifications.png" alt="">
+          </div>
+        </div>
 
-                    myClientApp.alerting.showToastPopup(
-                        lifecycleStatusMessageTitle,
-                        'App Focused', {
-                            id: lifecycleStatusMessageId
-                        }
-                    );
-                }
-                myClientApp.lifecycle.addFocusListener(onAppFocus);
+        <!-- Portfolio Item 3 -->
+        <div class="col-md-6 col-lg-4">
+          <div class="portfolio-item mx-auto text-center" data-toggle="modal" data-target="#integrationModal6">
+            <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
+              <div class="portfolio-item-caption-content text-center text-white">
+                <i class="fas fa-plus fa-3x"></i>
+              </div>
+            </div>
+            <img class="img-fluid" src="img/portfolio/notifications.png" alt="">
+          </div>
+        </div>
 
-                function onAppBlur () {
-                    logLifecycleEvent('Lifecycle Event: blur', true);
+      </div>
+      <!-- /.row -->
 
-                    myClientApp.alerting.showToastPopup(
-                        lifecycleStatusMessageTitle,
-                        'App Blurred', {
-                            id: lifecycleStatusMessageId
-                        }
-                    );
-                }
-                myClientApp.lifecycle.addBlurListener(onAppBlur);
+    </div>
+  </section>
 
-                myClientApp.lifecycle.addStopListener(() => {
-                    logLifecycleEvent('Lifecycle Event: stop', true);
+  <!-- About Section -->
+  <section class="page-section bg-primary text-white mb-0" id="makecall">
+    <div class="container">
 
-                    // Clean up other, persistent listeners
-                    myClientApp.lifecycle.removeFocusListener(onAppFocus);
-                    myClientApp.lifecycle.removeBlurListener(onAppBlur);
+      <!-- About Section Heading -->
+      <h2 class="page-section-heading text-center text-uppercase text-white">Vytočení odchozího hovoru ze CRM</h2>
 
-                    // Simulating delay of 500ms
-                    window.setTimeout(() => {
-                        myClientApp.lifecycle.stopped();
+      <!-- Icon Divider -->
+      <div class="divider-custom divider-light">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon">
+          <i class="fas fa-star"></i>
+        </div>
+        <div class="divider-custom-line"></div>
+      </div>
 
-                        myClientApp.alerting.showToastPopup(
-                            lifecycleStatusMessageTitle,
-                            'App Stopped (500ms delay)', {
-                                id: lifecycleStatusMessageId,
-                                type: 'error',
-                                showCloseButton: true
-                            }
-                        );
+      <!-- About Section Content -->
+      <div class="row">
+        <div class="col-lg-4 ml-auto">
+          <p class="lead">Tato funkcionalita umožňuje vytočení odchozího hovoru přímo z webové stránky zákazníka. Po zadání tel. čísla a provedení přkazu je kontaktován purecloud a exekuováno odchozí volání bez nutnosti přecházet do purecloud aplikace.</p>
+        </div>
+        <div class="col-lg-4 mr-auto">
+          <p class="lead">Pro využití této funkce je nutné zadat tel. číslo a následně kliknout na tlačítko pro vytočení hovoru.</p>
+        </div>
+      </div>
+     
+      <div class="divider-custom divider-light">
+          <div class="input-group w-50">
+             <div class="input-group-prepend"> 
+                    <span class="input-group-text" id="username">+420</span> 
+             </div> 
+             <input type="text" class="form-control">
+             <span class="input-group-btn">
+                  <a class="btn btn-outline-light" href="https://startbootstrap.com/themes/freelancer/">
+              <i class="fas fa-phone mr-2"></i>
+              Vytočit hovor
+            </a>
+             </span>
+          </div>
+      </div>
 
-                        logLifecycleEvent('Notified PC of Successful App Stop', false);
-                    }, 500);
-                });
+    </div>
+  </section>
+  
+  <section class="page-section bg-secondary text-white mb-0" id="notifications">
+    <div class="container">
 
-                function logLifecycleEvent(logText, incommingEvent) {
-                    $tgt = jQuery('.lifecycle-events .log')
-                    var newItem = $('<li>' + logText + '</li>');
-                    newItem.addClass(incommingEvent ? 'incomming' : 'outgoing');
+      <!-- About Section Heading -->
+      <h2 class="page-section-heading text-center text-uppercase text-white">PureCloud notifikace</h2>
 
-                    $tgt.prepend(newItem);
-                }
-            });
+      <!-- Icon Divider -->
+      <div class="divider-custom divider-light">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon">
+          <i class="fas fa-star"></i>
+        </div>
+        <div class="divider-custom-line"></div>
+      </div>
 
-    </script>       
-        
-    </body>
+      <ul class="list-group text-secondary" id="agent-notification-history">
+        <li class="list-group-item">Agent notification started</li>
+      </ul>
+
+    </div>
+  </section>
+  
+  <section class="page-section bg-secondary text-white mb-0" id="changestate">
+    <div class="container">
+
+      <!-- About Section Heading -->
+      <h2 class="page-section-heading text-center text-uppercase text-white">Změna stavu agenta</h2>
+
+      <div class="divider-custom divider-light">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon">
+          <i class="fas fa-star"></i>
+        </div>
+        <div class="divider-custom-line"></div>
+      </div>
+
+      <div class="d-flex justify-content-center text-secondary">
+        <ul class="list-group w-50" id="agent-state-history">
+          <li class="list-group-item">Agent status started</li>
+        </ul>
+      </div>
+      
+      <!-- About Section Content -->
+      <div class="divider-custom divider-light">
+        <div class="w-50">
+          <span class="input-group-btn">
+              <a class="btn btn-outline-light" href="">
+                <i class="fas fa-phone mr-2"></i>
+                Ready
+              </a>
+           </span>
+           <span class="input-group-btn">
+              <a class="btn btn-outline-light" href="">
+                <i class="fas fa-phone mr-2"></i>
+                Busy
+              </a>
+           </span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="page-section bg-secondary text-white mb-0" id="urlparams">
+    <div class="container">
+
+      <!-- About Section Heading -->
+      <h2 class="page-section-heading text-center text-uppercase text-white">url params</h2>
+
+      <div class="d-flex justify-content-center text-secondary">
+        <div class="w-50">
+          <ul class="list-group text-secondary" id="url-params-history"></ul>
+        </div>
+      </div>
+      
+    </div>
+  </section>
+
+  <!-- Copyright Section -->
+  <section class="copyright py-4 text-center text-white">
+    <div class="container">
+      <small>Copyright &copy; DimensionData Czech 2019</small>
+    </div>
+  </section>
+
+  <!-- Scroll to Top Button (Only visible on small and extra-small screen sizes) -->
+  <div class="scroll-to-top d-lg-none position-fixed ">
+    <a class="js-scroll-trigger d-block text-center text-white rounded" href="#page-top">
+      <i class="fa fa-chevron-up"></i>
+    </a>
+  </div>
+
+  <!-- Portfolio Modals -->
+
+  <!-- Portfolio Modal 1 -->
+  <div class="portfolio-modal modal fade" id="integrationModal1" tabindex="-1" role="dialog" aria-labelledby="portfolioModal1Label" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">
+            <i class="fas fa-times"></i>
+          </span>
+        </button>
+        <div class="modal-body text-center">
+          <div class="container">
+            <div class="row justify-content-center">
+              <div class="col-lg-8">
+                <!-- Portfolio Modal - Title -->
+                <h2 class="portfolio-modal-title text-secondary text-uppercase mb-0">Obecná CRM integrace</h2>
+                <!-- Icon Divider -->
+                <div class="divider-custom">
+                  <div class="divider-custom-line"></div>
+                  <div class="divider-custom-icon">
+                    <i class="fas fa-star"></i>
+                  </div>
+                  <div class="divider-custom-line"></div>
+                </div>
+                <!-- Portfolio Modal - Text -->
+                <p class="mb-5">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Mollitia neque assumenda ipsam nihil, molestias magnam, recusandae quos quis inventore quisquam velit asperiores, vitae? Reprehenderit soluta, eos quod consequuntur itaque. Nam.</p>
+                <button class="btn btn-primary" href="#" data-dismiss="modal">
+                  <i class="fas fa-times fa-fw"></i>
+                  Ukončit
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Portfolio Modal 2 -->
+  <div class="portfolio-modal modal fade" id="integrationModal2" tabindex="-1" role="dialog" aria-labelledby="portfolioModal2Label" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">
+            <i class="fas fa-times"></i>
+          </span>
+        </button>
+        <div class="modal-body text-center">
+          <div class="container">
+            <div class="row justify-content-center">
+              <div class="col-lg-8">
+                <!-- Portfolio Modal - Title -->
+                <h2 class="portfolio-modal-title text-secondary text-uppercase mb-0">CRM s vazbou na interakci</h2>
+                <!-- Icon Divider -->
+                <div class="divider-custom">
+                  <div class="divider-custom-line"></div>
+                  <div class="divider-custom-icon">
+                    <i class="fas fa-star"></i>
+                  </div>
+                  <div class="divider-custom-line"></div>
+                </div>
+
+                <!-- Portfolio Modal - Text -->
+                <p class="mb-5">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Mollitia neque assumenda ipsam nihil, molestias magnam, recusandae quos quis inventore quisquam velit asperiores, vitae? Reprehenderit soluta, eos quod consequuntur itaque. Nam.</p>
+                <button class="btn btn-primary" href="#" data-dismiss="modal">
+                  <i class="fas fa-times fa-fw"></i>
+                  Close Window
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Portfolio Modal 3 -->
+  <div class="portfolio-modal modal fade" id="integrationModal3" tabindex="-1" role="dialog" aria-labelledby="portfolioModal3Label" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">
+            <i class="fas fa-times"></i>
+          </span>
+        </button>
+        <div class="modal-body text-center">
+          <div class="container">
+            <div class="row justify-content-center">
+              <div class="col-lg-8">
+                <!-- Portfolio Modal - Title -->
+                <h2 class="portfolio-modal-title text-secondary text-uppercase mb-0">Embedované okno</h2>
+                <!-- Icon Divider -->
+                <div class="divider-custom">
+                  <div class="divider-custom-line"></div>
+                  <div class="divider-custom-icon">
+                    <i class="fas fa-star"></i>
+                  </div>
+                  <div class="divider-custom-line"></div>
+                </div>
+
+                <!-- Portfolio Modal - Text -->
+                <p class="mb-5">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Mollitia neque assumenda ipsam nihil, molestias magnam, recusandae quos quis inventore quisquam velit asperiores, vitae? Reprehenderit soluta, eos quod consequuntur itaque. Nam.</p>
+                <button class="btn btn-primary" href="#" data-dismiss="modal">
+                  <i class="fas fa-times fa-fw"></i>
+                  Close Window
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Portfolio Modal 4 -->
+  <div class="portfolio-modal modal fade" id="integrationModal4" tabindex="-1" role="dialog" aria-labelledby="portfolioModal4Label" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">
+            <i class="fas fa-times"></i>
+          </span>
+        </button>
+        <div class="modal-body text-center">
+          <div class="container">
+            <div class="row justify-content-center">
+              <div class="col-lg-8">
+                <!-- Portfolio Modal - Title -->
+                <h2 class="portfolio-modal-title text-secondary text-uppercase mb-0">Sledování stavu agenta</h2>
+                <!-- Icon Divider -->
+                <div class="divider-custom">
+                  <div class="divider-custom-line"></div>
+                  <div class="divider-custom-icon">
+                    <i class="fas fa-star"></i>
+                  </div>
+                  <div class="divider-custom-line"></div>
+                </div>
+                
+                <!-- Portfolio Modal - Text -->
+                <p class="mb-5">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Mollitia neque assumenda ipsam nihil, molestias magnam, recusandae quos quis inventore quisquam velit asperiores, vitae? Reprehenderit soluta, eos quod consequuntur itaque. Nam.</p>
+                <button class="btn btn-primary" href="#" data-dismiss="modal">
+                  <i class="fas fa-times fa-fw"></i>
+                  Close Window
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Portfolio Modal 5 -->
+  <div class="portfolio-modal modal fade" id="integrationModal5" tabindex="-1" role="dialog" aria-labelledby="portfolioModal5Label" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">
+            <i class="fas fa-times"></i>
+          </span>
+        </button>
+        <div class="modal-body text-center">
+          <div class="container">
+            <div class="row justify-content-center">
+              <div class="col-lg-8">
+                <!-- Portfolio Modal - Title -->
+                <h2 class="portfolio-modal-title text-secondary text-uppercase mb-0">Backend integrace</h2>
+                <!-- Icon Divider -->
+                <div class="divider-custom">
+                  <div class="divider-custom-line"></div>
+                  <div class="divider-custom-icon">
+                    <i class="fas fa-star"></i>
+                  </div>
+                  <div class="divider-custom-line"></div>
+                </div>
+
+                <!-- Portfolio Modal - Text -->
+                <p class="mb-5">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Mollitia neque assumenda ipsam nihil, molestias magnam, recusandae quos quis inventore quisquam velit asperiores, vitae? Reprehenderit soluta, eos quod consequuntur itaque. Nam.</p>
+                <button class="btn btn-primary" href="#" data-dismiss="modal">
+                  <i class="fas fa-times fa-fw"></i>
+                  Close Window
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Portfolio Modal 6 -->
+  <div class="portfolio-modal modal fade" id="integrationModal6" tabindex="-1" role="dialog" aria-labelledby="portfolioModal6Label" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">
+            <i class="fas fa-times"></i>
+          </span>
+        </button>
+        <div class="modal-body text-center">
+          <div class="container">
+            <div class="row justify-content-center">
+              <div class="col-lg-8">
+                <!-- Portfolio Modal - Title -->
+                <h2 class="portfolio-modal-title text-secondary text-uppercase mb-0">Zabezpečení</h2>
+                <!-- Icon Divider -->
+                <div class="divider-custom">
+                  <div class="divider-custom-line"></div>
+                  <div class="divider-custom-icon">
+                    <i class="fas fa-star"></i>
+                  </div>
+                  <div class="divider-custom-line"></div>
+                </div>
+
+                <!-- Portfolio Modal - Text -->
+                <p class="mb-5">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Mollitia neque assumenda ipsam nihil, molestias magnam, recusandae quos quis inventore quisquam velit asperiores, vitae? Reprehenderit soluta, eos quod consequuntur itaque. Nam.</p>
+                <button class="btn btn-primary" href="#" data-dismiss="modal">
+                  <i class="fas fa-times fa-fw"></i>
+                  Close Window
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap core JavaScript -->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Plugin JavaScript -->
+  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <!-- Contact Form JavaScript -->
+  <script src="js/jqBootstrapValidation.js"></script>
+  <script src="js/contact_me.js"></script>
+
+  <!-- Custom scripts for this template -->
+  <script src="js/freelancer.min.js"></script>
+
+</body>
+
 </html>
-
