@@ -103,10 +103,10 @@ function handleNotification(message) {
     addAgentStatus('Agent je aktuálně ve stavu ' + notification.eventBody.presenceDefinition.systemPresence);
 	} else if (notification.topicName.toLowerCase() === conversationsTopic.toLowerCase()) {
 		console.debug('Notification: ', notification);
-    if (isConversationDisconnected(notification.eventBody))
+    if (isConversationDisconnected(notification.eventBody)) {
       activeCallNumber = '';
 		  logApiEvent('Interakce ukončena');
-  	else {
+    } else {
       var callDirection = '';
       var callNumber = '';
 
