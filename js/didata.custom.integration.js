@@ -15,7 +15,7 @@ client.setPersistSettings(true, 'crm_test_app');
 // Set local vars
 let CONVERSATION_LIST_TEMPLATE = null;
 let conversationList = {};
-let me, webSocket, conversationsTopic, notificationChannel;
+let me, webSocket, conversationsTopic, presenceTopic, notificationChannel;
 
 function Page_Loaded() {
     window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
@@ -54,12 +54,14 @@ $(document).ready(() => {
 		.then(() => {
 
 			// Get authenticated user's info
-			return usersApi.getUsersMe();
+			return usersApi.getUsersMe({'expand': ["presence"]});
 		})
 		.then((userMe) => {
 			console.log('userMe: ', userMe);
       logApiEvent('Přihlášen agent ' + userMe.name + ' [' + userMe.username + ']');
 			me = userMe;
+      
+      logApiEvent('Aktuální stav agenta: ' + me.presence.presenceDefinition.systemPresence);
 
 			return notificationsApi.postNotificationsChannels();
 		})
@@ -77,8 +79,8 @@ $(document).ready(() => {
 			notificationsApi.putNotificationsChannelSubscriptions(notificationChannel.id, ConversationBody);
       
       presenceTopic = 'v2.users.' + me.id + '.presence';
-			const presenceBody = [ { id: presenceTopic } ];
-			notificationsApi.putNotificationsChannelSubscriptions(notificationChannel.id, presenceBody);
+			const PresenceBody = [ { id: presenceTopic } ];
+			notificationsApi.putNotificationsChannelSubscriptions(notificationChannel.id, PresenceBody);
 		})
 		.then((topicSubscriptions) => {
 			console.log('topicSubscriptions: ', topicSubscriptions);
@@ -97,19 +99,19 @@ function handleNotification(message) {
 	// Discard unwanted notifications
 	if (notification.topicName.toLowerCase() === 'channel.metadata') {
 		console.info('Ignoring metadata: ', notification);
-	} else if (notification.topicName.toLowerCase() !== conversationsTopic.toLowerCase()) {
-		console.warn('Unknown notification: ', notification);
-	} else if (notification.topicName.toLowerCase().endsWith('.presence')) {
+	} else if (notification.topicName.toLowerCase() === presenceTopic.toLowerCase()) {
 		console.warn('Agent status notification: ', notification);
     logApiEvent('Agent je aktuálně ve stavu ' + notification.presenceDefinition.systemPresence);
 		return;
-	} else {
+	} else if (notification.topicName.toLowerCase() === conversationsTopic.toLowerCase()) {
 		console.debug('Notification: ', notification);
     if (isConversationDisconnected(notification.eventBody))
 		  logApiEvent('Interakce ukončena');
   	else
       logApiEvent('Interakce probíhá');
-	}
+	} else {
+		console.warn('Unknown notification: ', notification);
+  }
 }
 
 function logConversation(conversation) {
