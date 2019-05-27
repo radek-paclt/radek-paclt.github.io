@@ -144,14 +144,16 @@ function changeAgentState(state){
 
 function makeCallFromWebApp(phoneNumber){
 
-conversationsApi.postConversationsCalls(body).then(function(result){
-  console.log("call placed successfully");
-  console.log(result);
-}).catch(function(error){
-  console.error("Error Placing call", error);
-});
+  var body = {
+    phoneNumber: phoneNumber
+  };
 
-
+  conversationsApi.postConversationsCalls(body).then(function(result){
+    console.log("call placed successfully");
+    console.log(result);
+  }).catch(function(error){
+    console.error("Error Placing call", error);
+  });
 }
 
 var lifecycleStatusMessageTitle = 'CRM Demo';
