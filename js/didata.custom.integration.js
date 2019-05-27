@@ -52,23 +52,19 @@ function addUrlParameters(text){
 $(document).ready(() => {
 	client.loginImplicitGrant(clientId, redirectUri)
 		.then(() => {
-			console.log('Logged in');
-      logApiEvent('Agent logged in');
 
 			// Get authenticated user's info
 			return usersApi.getUsersMe();
 		})
 		.then((userMe) => {
 			console.log('userMe: ', userMe);
-      logApiEvent(JSON.stringify(userMe));
+      logApiEvent('Přihlášen agent ' + userMe.name + ' [' + userMe.username + ']');
 			me = userMe;
 
-			// Create notification channel
 			return notificationsApi.postNotificationsChannels();
 		})
 		.then((channel) => {
 			console.log('channel: ', channel);
-      logApiEvent(JSON.stringify(channel));
 			notificationChannel = channel;
 
 			// Set up web socket
@@ -77,8 +73,12 @@ $(document).ready(() => {
 
 			// Subscribe to authenticated user's conversations
 			conversationsTopic = 'v2.users.' + me.id + '.conversations';
-			const body = [ { id: conversationsTopic } ];
-			return notificationsApi.putNotificationsChannelSubscriptions(notificationChannel.id, body);
+			const ConversationBody = [ { id: conversationsTopic } ];
+			notificationsApi.putNotificationsChannelSubscriptions(notificationChannel.id, ConversationBody);
+      
+      presenceTopic = 'v2.users.' + me.id + '.presence';
+			const presenceBody = [ { id: presenceTopic } ];
+			notificationsApi.putNotificationsChannelSubscriptions(notificationChannel.id, presenceBody);
 		})
 		.then((topicSubscriptions) => {
 			console.log('topicSubscriptions: ', topicSubscriptions);
@@ -96,19 +96,19 @@ function handleNotification(message) {
 
 	// Discard unwanted notifications
 	if (notification.topicName.toLowerCase() === 'channel.metadata') {
-		// Heartbeat
 		console.info('Ignoring metadata: ', notification);
-		return;
 	} else if (notification.topicName.toLowerCase() !== conversationsTopic.toLowerCase()) {
-		// Unexpected topic
 		console.warn('Unknown notification: ', notification);
+	} else if (notification.topicName.toLowerCase()endsWith('.presence')) {
+		console.warn('Agent status notification: ', notification);
+    logApiEvent('Agent je aktuálně ve stavu ' + notification.presenceDefinition.systemPresence);
 		return;
 	} else {
-		console.debug('Conversation notification: ', notification);
+		console.debug('Notification: ', notification);
     if (isConversationDisconnected(notification.eventBody))
-		  logApiEvent('interaction finished');
+		  logApiEvent('Interakce ukončena');
   	else
-      logConversation(notification.eventBody);
+      logApiEvent('Interakce probíhá');
 	}
 }
 
@@ -128,6 +128,30 @@ function isConversationDisconnected(conversation) {
 	});
 
 	return !isConnected;
+}
+
+function changeAgentState(state){
+  BootstrapDialog.show({
+      message: 'Změna stavu zaslána ' + state,
+      buttons: [{
+          label: 'Uzavřít',
+          action: function(dialogItself){
+              dialogItself.close();
+          }
+      }]
+  });
+}
+
+function makeCallFromWebApp(phoneNumber){
+
+conversationsApi.postConversationsCalls(body).then(function(result){
+  console.log("call placed successfully");
+  console.log(result);
+}).catch(function(error){
+  console.error("Error Placing call", error);
+});
+
+
 }
 
 var lifecycleStatusMessageTitle = 'CRM Demo';
@@ -154,8 +178,6 @@ jQuery(function () {
                       type: 'success'
                   }
               );
-
-              logLifecycleEvent('Notified PC of Successful App Bootstrap', false);
           }, 500);
       });
 
@@ -202,8 +224,6 @@ jQuery(function () {
                       showCloseButton: true
                   }
               );
-
-              logLifecycleEvent('Notified PC of Successful App Stop', false);
           }, 500);
       });
 
