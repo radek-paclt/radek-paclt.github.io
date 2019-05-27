@@ -136,7 +136,7 @@ function changeAgentState(state){
     for (var x=0; x< Object.keys(presenceData.entities).length; x++){
         var presence = presenceData.entities[x];
 
-        if(presence.systemPresence.toUpperCase() === state.toUpperCase(){
+        if(presence.systemPresence.toUpperCase() === state.toUpperCase()){
           console.log("found requested presence " + presence.id);
           var requestedPresence = presence.id;
           var newPresence = {
