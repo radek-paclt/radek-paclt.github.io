@@ -98,9 +98,8 @@ function handleNotification(message) {
 	if (notification.topicName.toLowerCase() === 'channel.metadata') {
 		console.info('Ignoring metadata: ', notification);
 	} else if (notification.topicName.toLowerCase() === presenceTopic.toLowerCase()) {
-		console.warn('Agent status notification: ', notification);
-    logApiEvent('Agent je aktuálně ve stavu ' + notification.presenceDefinition.systemPresence);
-		return;
+		console.log('Agent status notification: ', notification);
+    logApiEvent('Agent je aktuálně ve stavu ' + notification.eventBody.presenceDefinition.systemPresence);
 	} else if (notification.topicName.toLowerCase() === conversationsTopic.toLowerCase()) {
 		console.debug('Notification: ', notification);
     if (isConversationDisconnected(notification.eventBody))
@@ -131,28 +130,24 @@ function isConversationDisconnected(conversation) {
 }
 
 function changeAgentState(state){
-  BootstrapDialog.show({
-      message: 'Změna stavu zaslána ' + state,
-      buttons: [{
-          label: 'Uzavřít',
-          action: function(dialogItself){
-              dialogItself.close();
-          }
-      }]
-  });
+  logApiEvent('Požádáno o změnu stavu agenta: ' + state);
+  console.log("Change agent state requested");
 }
 
-function makeCallFromWebApp(phoneNumber){
+function makeCallFromWebApp(){
+  var phoneNum = document.getElementById("makeCallPhoneNumber");
 
   var body = {
-    phoneNumber: phoneNumber
+    phoneNumber: phoneNum.value
   };
 
   conversationsApi.postConversationsCalls(body).then(function(result){
     console.log("call placed successfully");
     console.log(result);
+    logApiEvent('Hovor vytočen');
   }).catch(function(error){
     console.error("Error Placing call", error);
+    logApiEvent('Chyba při vytáčení hovoru: ' + error);
   });
 }
 
