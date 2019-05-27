@@ -99,7 +99,7 @@ function handleNotification(message) {
 		console.info('Ignoring metadata: ', notification);
 	} else if (notification.topicName.toLowerCase() !== conversationsTopic.toLowerCase()) {
 		console.warn('Unknown notification: ', notification);
-	} else if (notification.topicName.toLowerCase()endsWith('.presence')) {
+	} else if (notification.topicName.toLowerCase().endsWith('.presence')) {
 		console.warn('Agent status notification: ', notification);
     logApiEvent('Agent je aktuálně ve stavu ' + notification.presenceDefinition.systemPresence);
 		return;
