@@ -16,7 +16,7 @@ client.setPersistSettings(true, 'crm_test_app');
 // Set local vars
 let CONVERSATION_LIST_TEMPLATE = null;
 let conversationList = {};
-let me, webSocket, conversationsTopic, presenceTopic, notificationChannel;
+let me, webSocket, conversationsTopic, presenceTopic, notificationChannel, activeCallNumber;
 
 function Page_Loaded() {
     window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
@@ -62,7 +62,7 @@ $(document).ready(() => {
       logApiEvent('Přihlášen agent ' + userMe.name + ' [' + userMe.username + ']');
 			me = userMe;
       
-      logApiEvent('Aktuální stav agenta: ' + me.presence.presenceDefinition.systemPresence.toUpperCase());
+      addAgentStatus('Aktuální stav agenta: ' + me.presence.presenceDefinition.systemPresence.toUpperCase());
 
 			return notificationsApi.postNotificationsChannels();
 		})
@@ -100,22 +100,40 @@ function handleNotification(message) {
 		console.info('Ignoring metadata: ', notification);
 	} else if (notification.topicName.toLowerCase() === presenceTopic.toLowerCase()) {
 		console.log('Agent status notification: ', notification);
-    logApiEvent('Agent je aktuálně ve stavu ' + notification.eventBody.presenceDefinition.systemPresence);
+    addAgentStatus('Agent je aktuálně ve stavu ' + notification.eventBody.presenceDefinition.systemPresence);
 	} else if (notification.topicName.toLowerCase() === conversationsTopic.toLowerCase()) {
 		console.debug('Notification: ', notification);
     if (isConversationDisconnected(notification.eventBody))
+      activeCallNumber = '';
 		  logApiEvent('Interakce ukončena');
-  	else
-      logApiEvent('Interakce probíhá');
+  	else {
+      var callDirection = '';
+      var callNumber = '';
+
+      conversation.participants.forEach((participant) => {
+        if (participant.state === 'connected' && (participant.purpose === 'external' || participant.purpose === 'customer')){
+          callDirection = participant.direction;
+          callNumber = participant.address;
+          break;  
+        }
+    	});
+      
+      if (callNumber !== activeCallNumber){
+        if (callDirection === 'inbound') {
+            logApiEvent('Příchozí hovor z čísla ' + callNumber);
+        } else {
+            logApiEvent('Odchozí hovor na číslo ' + callNumber);
+        }
+        activeCallNumber = callNumber;
+      }
+    }
 	} else {
 		console.warn('Unknown notification: ', notification);
   }
 }
 
 function logConversation(conversation) {
-	conversation.participants.forEach((participant) => {
-    logApiEvent(participant.calls[0].self.addressNormalized + '/' + participant.calls[0].direction + '/' + participant.calls[0].state);
-	});
+	
 }
 
 function isConversationDisconnected(conversation) {
@@ -145,7 +163,7 @@ function changeAgentState(state){
               }
           };
         
-          presenceApi.getUserPresence(userId, 'PURECLOUD', newPresence);
+          presenceApi.getUserPresence(me.id, 'PURECLOUD', newPresence);
           console.log("new presence sent " + newPresence);
         }
     }
