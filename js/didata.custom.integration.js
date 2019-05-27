@@ -152,7 +152,7 @@ function changeAgentState(state){
   });
   
   
-  logApiEvent('Požádáno o změnu stavu agenta: ' + state.toUpperCase();
+  logApiEvent('Požádáno o změnu stavu agenta: ' + state.toUpperCase());
   console.log("Change agent state requested");
 }
 
