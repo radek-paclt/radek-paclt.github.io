@@ -62,7 +62,7 @@ $(document).ready(() => {
       logApiEvent('Přihlášen agent ' + userMe.name + ' [' + userMe.username + ']');
 			me = userMe;
       
-      logApiEvent('Aktuální stav agenta: ' + me.presence.presenceDefinition.systemPresence.toUpperCase();
+      logApiEvent('Aktuální stav agenta: ' + me.presence.presenceDefinition.systemPresence.toUpperCase());
 
 			return notificationsApi.postNotificationsChannels();
 		})
