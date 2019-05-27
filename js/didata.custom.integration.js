@@ -75,12 +75,10 @@ $(document).ready(() => {
 
 			// Subscribe to authenticated user's conversations
 			conversationsTopic = 'v2.users.' + me.id + '.conversations';
-			const ConversationBody = [ { id: conversationsTopic } ];
-			notificationsApi.putNotificationsChannelSubscriptions(notificationChannel.id, ConversationBody);
-      
       presenceTopic = 'v2.users.' + me.id + '.presence';
-			const PresenceBody = [ { id: presenceTopic } ];
-			notificationsApi.putNotificationsChannelSubscriptions(notificationChannel.id, PresenceBody);
+
+			const NotificationBody = [ { id: conversationsTopic }, { id: presenceTopic } ];
+			return notificationsApi.putNotificationsChannelSubscriptions(notificationChannel.id, NotificationBody);
 		})
 		.then((topicSubscriptions) => {
 			console.log('topicSubscriptions: ', topicSubscriptions);
@@ -169,9 +167,7 @@ jQuery(function () {
       addAgentNotification(window.purecloud.apps.ClientApp.about());
     
       myClientApp.lifecycle.addBootstrapListener(() => {
-          logLifecycleEvent('Lifecycle Event: bootstrap', true);
 
-          // Simulating bootstrap delay of 500ms
           window.setTimeout(() => {
               myClientApp.lifecycle.bootstrapped();
 
