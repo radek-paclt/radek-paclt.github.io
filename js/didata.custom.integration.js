@@ -120,7 +120,7 @@ function handleNotification(message) {
         }
     	};
       
-      if (callNumber !== activeCallNumber){
+      if (callNumber !== activeCallNumber && callNumber !=== ''){
         if (callDirection === 'inbound') {
             logApiEvent('Příchozí hovor z čísla ' + callNumber);
         } else {
@@ -143,7 +143,7 @@ function logConversation(conversation) {
 function isConversationDisconnected(conversation) {
 	let isConnected = false;
 	conversation.participants.some((participant) => {
-		if (participant.state !== 'disconnected') {
+		if (participant.calls[0].state === 'connected') {
 			isConnected = true;
 			return true;
 		}
