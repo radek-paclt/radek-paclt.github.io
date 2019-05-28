@@ -1,5 +1,5 @@
 const clientId = 'c3853eb7-e2f3-402b-95d3-22491e80c996';
-const redirectUri = window.location.href;
+const redirectUri = 'https://radek-paclt.github.io/index.html';
 
 // Set purecloud objects
 const platformClient = require('platformClient');
