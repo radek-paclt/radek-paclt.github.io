@@ -120,7 +120,7 @@ function handleNotification(message) {
         }
     	};
       
-      if (callNumber !== activeCallNumber && callNumber !=== ''){
+      if (callNumber !== activeCallNumber && callNumber !== ''){
         if (callDirection === 'inbound') {
             logApiEvent('Příchozí hovor z čísla ' + callNumber);
         } else {
