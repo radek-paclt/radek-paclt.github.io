@@ -155,7 +155,7 @@ function isConversationDisconnected(conversation) {
 function changeAgentState(state){
   
   presenceApi.getPresencedefinitions().then(function(presenceData){
-    for (var x=0; x< Object.keys(presenceData.entities).length; x++){
+    for (var x=0; x < Object.keys(presenceData.entities).length; x++){
         var presence = presenceData.entities[x];
 
         if(presence.systemPresence.toUpperCase() === state.toUpperCase()){
@@ -167,8 +167,14 @@ function changeAgentState(state){
               }
           };
         
-          presenceApi.getUserPresence(me.id, 'PURECLOUD', newPresence);
-          console.log("new presence sent " + newPresence);
+          presenceApi.patchUserPresence(me.id, 'PURECLOUD', newPresence).then((data) => {
+              console.log(`patchUserPresence success! data: ${JSON.stringify(data, null, 2)}`);
+            })
+            .catch((err) => {
+              console.log('There was a failure calling patchUserPresence');
+              console.error(err);
+            });
+          break;
         }
     }
   });
