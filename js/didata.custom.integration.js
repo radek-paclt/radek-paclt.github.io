@@ -169,8 +169,10 @@ function changeAgentState(state){
         
           presenceApi.patchUserPresence(me.id, 'PURECLOUD', newPresence).then((data) => {
               console.log(`patchUserPresence success! data: ${JSON.stringify(data, null, 2)}`);
+              addAgentStatus('Požádáno o změnu stavu agenta: ' + state.toUpperCase());
             })
             .catch((err) => {
+              addAgentStatus('Požádáno o změnu stavu agenta selhalo: ' + state.toUpperCase());
               console.log('There was a failure calling patchUserPresence');
               console.error(err);
             });
@@ -179,8 +181,6 @@ function changeAgentState(state){
     }
   });
   
-  
-  logApiEvent('Požádáno o změnu stavu agenta: ' + state.toUpperCase());
   console.log("Change agent state requested");
 }
 
