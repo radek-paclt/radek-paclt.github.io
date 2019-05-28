@@ -98,9 +98,11 @@ function handleNotification(message) {
 	// Discard unwanted notifications
 	if (notification.topicName.toLowerCase() === 'channel.metadata') {
 		console.info('Ignoring metadata: ', notification);
+    return;
 	} else if (notification.topicName.toLowerCase() === presenceTopic.toLowerCase()) {
 		console.log('Agent status notification: ', notification);
     addAgentStatus('Agent je aktuálně ve stavu ' + notification.eventBody.presenceDefinition.systemPresence);
+    return;
 	} else if (notification.topicName.toLowerCase() === conversationsTopic.toLowerCase()) {
 		console.debug('Notification: ', notification);
     if (isConversationDisconnected(notification.eventBody)) {
@@ -110,7 +112,7 @@ function handleNotification(message) {
       var callDirection = '';
       var callNumber = '';
 
-      conversation.participants.forEach((participant) => {
+      for (let participant of conversation.participants) {
         if (participant.state === 'connected' && (participant.purpose === 'external' || participant.purpose === 'customer')){
           callDirection = participant.direction;
           callNumber = participant.address;
@@ -127,8 +129,10 @@ function handleNotification(message) {
         activeCallNumber = callNumber;
       }
     }
+    return;
 	} else {
 		console.warn('Unknown notification: ', notification);
+    return;
   }
 }
 
