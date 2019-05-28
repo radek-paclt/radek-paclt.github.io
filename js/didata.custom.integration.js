@@ -118,7 +118,7 @@ function handleNotification(message) {
           callNumber = participant.address;
           break;  
         }
-    	});
+    	};
       
       if (callNumber !== activeCallNumber){
         if (callDirection === 'inbound') {
