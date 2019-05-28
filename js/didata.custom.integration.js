@@ -112,7 +112,7 @@ function handleNotification(message) {
       var callDirection = '';
       var callNumber = '';
 
-      for (let participant of conversation.participants) {
+      for (let participant of notification.eventBody.participants) {
         if (participant.state === 'connected' && (participant.purpose === 'external' || participant.purpose === 'customer')){
           callDirection = participant.direction;
           callNumber = participant.address;
