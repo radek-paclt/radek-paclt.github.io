@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Demo page</title>
+    
+    <link href="css/freelancer.css" rel="stylesheet">
+</head>
+
+<body id="page-top">
+
+  <nav class="navbar navbar-expand-lg bg-secondary text-uppercase " id="mainNav">
+    <div class="container">
+      <img src="img/ntt_logo_large.png" style="margins:5px;"> <a class="navbar-brand js-scroll-trigger" href="#page-top">videochat demo</a>
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav ml-auto"> 
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+      <section class="copyright py-4 text-center text-white">
+    <div class="container">
+          <form id="chatForm">
+        <button type="button" id="chat-button">Start Chat</button>
+    </form>
+    <div id="chat-container" style="height:300px"></div>
+    </div>
+  </section>
+  
+    <section class="copyright py-4 text-center text-white">
+    <div class="container">
+      <small>Copyright &copy; NTT 2020</small>
+    </div>
+  </section>
+  
+    
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+      <script
+    id="purecloud-webchat-js"
+    type="text/javascript"
+    src="https://apps.mypurecloud.de/webchat/jsapi-v1.js"
+    region="eu-central-1"
+    org-guid="8b9e929e-124a-4d6c-9fb0-8b7b3fa6a0d9"
+    deployment-key="59847d87-7e2d-42c2-b343-b7efe3a81f9f">
+  </script>
+
+    <script type="text/javascript">
+
+        $(document).ready(function initializeChat () {
+            let chatConfig = {
+  "webchatAppUrl": "https://apps.mypurecloud.de/webchat",
+  "webchatServiceUrl": "https://realtime.mypurecloud.de:443",
+  "orgId": "582",
+  "orgGuid": "8b9e929e-124a-4d6c-9fb0-8b7b3fa6a0d9",
+  "orgName": "dimensiondataczechrepublic",
+  "queueName": "Sales",
+  "logLevel": "DEBUG",
+  "locale": "",
+  "data": {
+    "firstName": "Jan",
+    "lastName": "Novak",
+    "addressStreet": "",
+    "addressCity": "",
+    "addressPostalCode": "",
+    "addressState": "",
+    "phoneNumber": "",
+    "customField1Label": "",
+    "customField1": "",
+    "customField2Label": "",
+    "customField2": "",
+    "customField3Label": "",
+    "customField3": "",
+    "email": ""
+  },
+  "companyLogo": {
+    "width": 600,
+    "height": 149,
+    "url": "https://d3a63qt71m2kua.cloudfront.net/developer-tools/1566/assets/images/PC-blue-nomark.png"
+  },
+  "companyLogoSmall": {
+    "width": 25,
+    "height": 25,
+    "url": "https://d3a63qt71m2kua.cloudfront.net/developer-tools/1566/assets/images/companylogo.png"
+  },
+  "agentAvatar": {
+    "width": 462,
+    "height": 462,
+    "url": "https://d3a63qt71m2kua.cloudfront.net/developer-tools/1566/assets/images/agent.jpg"
+  },
+  "welcomeMessage": "",
+  "cssClass": "webchat-frame",
+  "css": {
+    "width": "100%",
+    "height": "100%"
+  }
+};
+            var chatButton = document.getElementById('chat-button');
+
+            // Required if reconnects are enabled
+            window.PURECLOUD_WEBCHAT_FRAME_CONFIG = {
+                containerEl: 'chat-container'
+            };
+
+            ININ.webchat.create(chatConfig)
+                .then(function (webchat) {
+                    // Optionally use isAutoJoined if reconnects are enabled
+                    if (webchat.isAutoJoined()) {
+                        // Do something to disable chat button
+                    } else {
+                        chatButton.onclick = function () {
+                            // Alternatively, call webchat.renderPopup here. Note that reconnects do not apply to popup chat.
+                            return webchat.renderFrame({
+                                containerEl: 'chat-container'
+                            });
+                        };
+                    }
+                })
+                .catch(function (err){
+                    console.log(err);
+                });
+        });
+
+    </script>
+
+      <!-- Bootstrap core JavaScript -->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Plugin JavaScript -->
+  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <!-- Contact Form JavaScript -->
+  <script src="js/jqBootstrapValidation.js"></script>
+  <script src="js/contact_me.js"></script>
+
+  <!-- Custom scripts for this template -->
+  <script src="js/freelancer.min.js"></script>
+
+</body>
+</html>
