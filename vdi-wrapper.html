@@ -37,7 +37,11 @@
   let me, webSocket, conversationsTopic, userCallsTopic, presenceTopic, notificationChannel, activeCallNumber, agentPart, customerPart, conversationId;
 
   $(document).ready(() => {
-	client.loginImplicitGrant(clientId, redirectUri)
+    LoadGenesysCloud();
+  });
+
+function LoadGenesysCloud(){
+  client.loginImplicitGrant(clientId, redirectUri)
 		.then(() => {
 
 			// Get authenticated user's info
@@ -68,7 +72,7 @@
 			console.log('topicSubscriptions: ', topicSubscriptions);
 		})
 		.catch((err) => console.error(err));
-});
+  } 
 
 function handleNotification(message) {
 	// Parse notification string to a JSON object
@@ -154,10 +158,12 @@ function answerCall() {
 </script>
 
 <body id="page-top">
-  <button class="navbar-toggler navbar-toggler-right text-uppercase font-weight-bold bg-primary text-white rounded" 
-  type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"
+  <button type="button" style="position:fixed; top:5; left:0; z-index:999999;"
   onclick="answerCall();">
     Answer
   </button>
+  <iframe src="https://apps.mypurecloud.de/directory" style="position:fixed; top:0; left:0; bottom:0; right:0; width:100%; height:100%; border:none; margin:0; padding:0; overflow:hidden; z-index:999998;">
+    Your browser doesn't support iframes
+</iframe>
 </body>
 </html>
