@@ -102,10 +102,10 @@ function handleNotification(message) {
         }
         if ((participant.purpose == "user") || (participant.purpose == "agent")) {
           if (participant.user.id == me.id) {
-            agentPart = part;
+            agentPart = participant;
           }
           else
-            customerPart = part;
+            customerPart = participant;
         }
     	};
       
