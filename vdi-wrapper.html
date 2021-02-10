@@ -96,13 +96,13 @@ function handleNotification(message) {
       var callNumber = '';
 
       for (let participant of notification.eventBody.participants) {
-        if (participant.calls[0].state === 'connected' && (participant.purpose === 'external' || participant.purpose === 'customer')){
+        if (participant.state === 'connected' && (participant.purpose === 'external' || participant.purpose === 'customer')){
           callDirection = participant.direction;
           callNumber = participant.address;
           break;  
         }
-        if ((part.purpose == "user") || (part.purpose == "agent")) {
-          if (part.user.id == me.id) {
+        if ((participant.purpose == "user") || (participant.purpose == "agent")) {
+          if (participant.user.id == me.id) {
             agentPart = part;
           }
           else
