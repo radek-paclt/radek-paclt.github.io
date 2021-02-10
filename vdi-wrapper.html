@@ -16,7 +16,7 @@
 </head>
 
 <script type="text/javascript">
-  const clientId = 'c3853eb7-e2f3-402b-95d3-22491e80c996';
+  const clientId = '89333897-d43e-428e-ac31-e973c14bfb1d';
   // Set purecloud objects
   const platformClient = require('platformClient');
   const client = platformClient.ApiClient.instance;
@@ -27,17 +27,15 @@
 
   // Set PureCloud settings
   client.setEnvironment('mypurecloud.de');
-  client.setPersistSettings(true, 'cti-toolbar-app');
+  client.setPersistSettings(true, 'vdi-helper-app');
 
   // Set local vars
   let CONVERSATION_LIST_TEMPLATE = null;
   let conversationList = {};
   let me, webSocket, conversationsTopic, presenceTopic, notificationChannel, activeCallNumber;
 
-  let applicationUrl = window.location.href;
-
   $(document).ready(() => {
-	client.loginImplicitGrant(clientId, applicationUrl)
+	client.loginImplicitGrant(clientId, redirectUri)
 		.then(() => {
 
 			// Get authenticated user's info
