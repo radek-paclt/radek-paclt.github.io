@@ -99,7 +99,6 @@ function handleNotification(message) {
         if (participant.state === 'connected' && (participant.purpose === 'external' || participant.purpose === 'customer')){
           callDirection = participant.direction;
           callNumber = participant.address;
-          break;  
         }
         if ((participant.purpose == "user") || (participant.purpose == "agent")) {
           if (participant.user.id == me.id) {
