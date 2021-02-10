@@ -131,7 +131,7 @@ function handleNotification(message) {
 function isConversationDisconnected(conversation) {
 	let isConnected = false;
 	conversation.participants.some((participant) => {
-		if (participant.calls[0].state === 'connected') {
+		if (participant.state === 'connected') {
 			isConnected = true;
 			return true;
 		}
