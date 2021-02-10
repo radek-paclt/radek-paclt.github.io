@@ -25,6 +25,8 @@
   const usersApi = new platformClient.UsersApi();
   const presenceApi = new platformClient.PresenceApi();
 
+  const redirectUri = 'https://radek-paclt.github.io/vdi-wrapper.html';
+
   // Set PureCloud settings
   client.setEnvironment('mypurecloud.de');
   client.setPersistSettings(true, 'vdi-helper-app');
@@ -32,7 +34,7 @@
   // Set local vars
   let CONVERSATION_LIST_TEMPLATE = null;
   let conversationList = {};
-  let me, webSocket, conversationsTopic, presenceTopic, notificationChannel, activeCallNumber;
+  let me, webSocket, conversationsTopic, userCallsTopic, presenceTopic, notificationChannel, activeCallNumber, agentPart, customerPart, conversationId;
 
   $(document).ready(() => {
 	client.loginImplicitGrant(clientId, redirectUri)
@@ -56,9 +58,10 @@
 
 			// Subscribe to authenticated user's conversations
 			conversationsTopic = 'v2.users.' + me.id + '.conversations';
+      userCallsTopic = 'v2.users.' + myUserMe.id + '.conversations.calls'; 
       presenceTopic = 'v2.users.' + me.id + '.presence';
 
-			const NotificationBody = [ { id: conversationsTopic }, { id: presenceTopic } ];
+			const NotificationBody = [ { id: conversationsTopic }, { id: presenceTopic }, { id: userCallsTopic } ];
 			return notificationsApi.putNotificationsChannelSubscriptions(notificationChannel.id, NotificationBody);
 		})
 		.then((topicSubscriptions) => {
@@ -77,10 +80,11 @@ function handleNotification(message) {
     return;
 	} else if (notification.topicName.toLowerCase() === presenceTopic.toLowerCase()) {
 		console.log('Agent status notification: ', notification);
-    addAgentStatus('Agent je aktuálně ve stavu ' + notification.eventBody.presenceDefinition.systemPresence);
+    console.log('Agent in state ' + notification.eventBody.presenceDefinition.systemPresence);
     return;
-	} else if (notification.topicName.toLowerCase() === conversationsTopic.toLowerCase()) {
-		console.debug('Notification: ', notification);
+	} else if (notification.topicName.toLowerCase() === userCallsTopic.toLowerCase()) {
+    console.debug('Call notification: ', notification);
+
     if (isConversationDisconnected(notification.eventBody)) {
       activeCallNumber = '';
     } else {
@@ -93,13 +97,22 @@ function handleNotification(message) {
           callNumber = participant.address;
           break;  
         }
+        if ((part.purpose == "user") || (part.purpose == "agent")) {
+          if (part.user.id == me.id) {
+            agentPart = part;
+          }
+          else
+            customerPart = part;
+        }
     	};
       
+      conversationId = notification.eventBody.id;
+
       if (callNumber !== activeCallNumber && callNumber !== ''){
         if (callDirection === 'inbound') {
-          console.debug('Příchozí hovor z čísla ' + callNumber);
+          console.debug('Incomming call from number ' + callNumber);
         } else {
-          console.debug('Odchozí hovor na číslo ' + callNumber);
+          console.debug('Outbound call to number ' + callNumber);
         }
         activeCallNumber = callNumber;
       }
@@ -110,12 +123,40 @@ function handleNotification(message) {
     return;
   }
 }
+
+function isConversationDisconnected(conversation) {
+	let isConnected = false;
+	conversation.participants.some((participant) => {
+		if (participant.calls[0].state === 'connected') {
+			isConnected = true;
+			return true;
+		}
+	});
+
+	return !isConnected;
+}
+
+function answerCall() {
+
+  let body = {
+    "state": "CONNECTED"
+  };
+  console.log("Answering call with conversationId: " + conversationId + " and participantId: " + agentPart.id);
+  conversationsApi.patchConversationsCallParticipant(conversationId, agentPart.id, body)
+    .then((data) => {
+      console.log('patchConversationsCallParticipant success! data: ' + JSON.stringify(data, null, 2));
+      console.log("answered call with conversationId " + conversationId + " and participantId: " + agentPart.id);
+    }).catch((err) => {
+      console.log('There was a failure calling patchConversationsCallParticipant');
+      console.error(err);
+    });
+}
 </script>
 
 <body id="page-top">
   <button class="navbar-toggler navbar-toggler-right text-uppercase font-weight-bold bg-primary text-white rounded" 
   type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"
-  onclick="">
+  onclick="answerCall();">
     Answer
   </button>
 </body>
