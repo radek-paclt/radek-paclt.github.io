@@ -58,7 +58,7 @@
 
 			// Subscribe to authenticated user's conversations
 			conversationsTopic = 'v2.users.' + me.id + '.conversations';
-      userCallsTopic = 'v2.users.' + myUserMe.id + '.conversations.calls'; 
+      userCallsTopic = 'v2.users.' + me.id + '.conversations.calls'; 
       presenceTopic = 'v2.users.' + me.id + '.presence';
 
 			const NotificationBody = [ { id: conversationsTopic }, { id: presenceTopic }, { id: userCallsTopic } ];
