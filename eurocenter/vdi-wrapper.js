@@ -1,50 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
+const clientId = '89333897-d43e-428e-ac31-e973c14bfb1d';
+const platformClient = require('platformClient');
+const client = platformClient.ApiClient.instance;
+const conversationsApi = new platformClient.ConversationsApi();
+const notificationsApi = new platformClient.NotificationsApi();
+const usersApi = new platformClient.UsersApi();
+const presenceApi = new platformClient.PresenceApi();
 
-<head>
+const redirectUri = 'https://radek-paclt.github.io/vdi-wrapper.html';
 
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="">
-  <meta name="author" content="">
+// Set PureCloud settings
+client.setEnvironment('mypurecloud.de');
+client.setPersistSettings(true, 'vdi-helper-app');
 
-  <title>VDI wrapper</title>
-   
-  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-  <script src="https://sdk-cdn.mypurecloud.com/javascript/latest/purecloud-platform-client-v2.min.js"></script>
-
-</head>
-
-<style>
-  .elemenHidden {
-     display:none;
-  }
-</style>
-
-<script type="text/javascript">
-  const clientId = '89333897-d43e-428e-ac31-e973c14bfb1d';
-  // Set purecloud objects
-  const platformClient = require('platformClient');
-  const client = platformClient.ApiClient.instance;
-  const conversationsApi = new platformClient.ConversationsApi();
-  const notificationsApi = new platformClient.NotificationsApi();
-  const usersApi = new platformClient.UsersApi();
-  const presenceApi = new platformClient.PresenceApi();
-
-  const redirectUri = 'https://radek-paclt.github.io/vdi-wrapper.html';
-
-  // Set PureCloud settings
-  client.setEnvironment('mypurecloud.de');
-  client.setPersistSettings(true, 'vdi-helper-app');
-
-  // Set local vars
-  let CONVERSATION_LIST_TEMPLATE = null;
-  let conversationList = {};
-  let me, webSocket, conversationsTopic, userCallsTopic, presenceTopic, notificationChannel, activeCallNumber, agentPart, customerPart, conversationId;
-
-  $(document).ready(() => {
-    LoadGenesysCloud();
-  });
+// Set local vars
+let CONVERSATION_LIST_TEMPLATE = null;
+let customInitalizationDone = false;
+let conversationList = {};
+let me, webSocket, conversationsTopic, userCallsTopic, presenceTopic, notificationChannel, activeCallNumber, agentPart, customerPart, conversationId;
 
 function LoadGenesysCloud(){
   client.loginImplicitGrant(clientId, redirectUri)
@@ -80,6 +52,10 @@ function LoadGenesysCloud(){
 		.catch((err) => console.error(err));
   } 
 
+function onGenesysContentLoaded(){
+  LoadGenesysCloud();
+}
+
 function handleNotification(message) {
 	// Parse notification string to a JSON object
 	const notification = JSON.parse(message.data);
@@ -91,12 +67,15 @@ function handleNotification(message) {
 	} else if (notification.topicName.toLowerCase() === presenceTopic.toLowerCase()) {
 		console.log('Agent status notification: ', notification);
     console.log('Agent in state ' + notification.eventBody.presenceDefinition.systemPresence);
+    if (notification.eventBody.presenceDefinition.systemPresence !== 'OFFLINE' && !customInitalizationDone)
+      customInitializationProcess();
     return;
 	} else if (notification.topicName.toLowerCase() === userCallsTopic.toLowerCase()) {
     console.debug('Call notification: ', notification);
 
     if (isConversationDisconnected(notification.eventBody)) {
       activeCallNumber = '';
+      $("#NewCallRingingWindow").hide();
     } else {
       var callDirection = '';
       var callNumber = '';
@@ -105,12 +84,13 @@ function handleNotification(message) {
         if (participant.state === 'connected' && (participant.purpose === 'external' || participant.purpose === 'customer')){
           callDirection = participant.direction;
           callNumber = participant.address;
-          document.getElementById('AnswerButton').classList.add('elemenHidden');
+            $("#NewCallRingingWindow").hide();
+        } else{
+            $("#NewCallRingingWindow").show();
         }
         if ((participant.purpose == "user") || (participant.purpose == "agent")) {
           if (participant.user.id == me.id) {
             agentPart = participant;
-            document.getElementById('AnswerButton').classList.remove('elemenHidden');
           }
           else
             customerPart = participant;
@@ -147,8 +127,16 @@ function isConversationDisconnected(conversation) {
 	return !isConnected;
 }
 
-function answerCall() {
+function customInitializationProcess(){
+  console.debug("custom initialization started");
+  customInitalizationDone = false;
+  $("#initializationModalCenter").modal("show") ;
+  makeCall("EuroCenter_Infoline_VDI_Init@localhost").then(() => {
+      $("#initializationModalCenter").modal("hide");
+  })
+}
 
+function answerCall() {
   let body = {
     "state": "CONNECTED"
   };
@@ -162,17 +150,52 @@ function answerCall() {
       console.error(err);
     });
 }
-</script>
 
-<body id="page-top">
-  <button type="button" name="AnswerButton" style="position:fixed; top:5; left:0; z-index:999999;" class="elemenHidden"
-  onclick="answerCall();">
-    Answer
-  </button>
-  <iframe src="https://apps.mypurecloud.de/directory" 
-            style="position:fixed; top:0; left:0; bottom:0; right:0; width:100%; height:100%; border:none; margin:0; padding:0; overflow:hidden; z-index:999998;" 
-            sandbox="allow-scripts allow-same-origin">
-    Your browser doesn't support iframes
-</iframe>
-</body>
-</html>
+function hangupCall() {
+  let body = {
+    "state": "DISCONNECTED"
+  };
+  console.log("Releasing call with conversationId: " + conversationId);
+  conversationsApi.patchConversationsCall(conversationId, body)
+    .then((data) => {
+      console.log('patchConversationsCall success! data: ' + JSON.stringify(data, null, 2));
+      console.log("released call with conversationId " + conversationId);
+    })
+    .catch((err) => {
+      console.log('There was a failure calling postConversationsCall');
+      console.error(err);
+    });
+}
+
+function makeCall(phoneNumber){
+    var phoneField = document.getElementById("phone");
+    let body = {
+        "phoneNumber": phoneNumber
+    };
+    conversationsApi.postConversationsCalls(body)
+        .then((data) => {
+             console.log('postConversationsCall success! data: ' + JSON.stringify(data, null, 2));
+             conversationId = data.id;
+             console.log("conversationId: " + conversationId + ", started at " + new Date().toISOString());
+        })
+        .catch((err) => {
+            console.log('There was a failure calling postConversationsCall');
+            console.error(err);
+        });
+}
+
+$(document).ready(function(){
+  $("#CustomMenuButton").click(function(){
+    if ($("#CustomMenuIcon").hasClass("fa-bars")){
+      $("#CustomMenuIcon").removeClass("fa-bars");
+      $("#CustomMenuIcon").addClass("fa-angle-double-up");
+      $("#GenesysCloudFrame").css("top","50px");
+
+    } else{
+      $("#CustomMenuIcon").removeClass("fa-angle-double-up");
+      $("#CustomMenuIcon").addClass("fa-bars");
+      $("#GenesysCloudFrame").css("top","0px");
+      
+    }
+  });
+});
