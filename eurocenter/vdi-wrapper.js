@@ -13,9 +13,9 @@ client.setEnvironment('mypurecloud.de');
 client.setPersistSettings(true, 'vdi-helper-app');
 
 // Set local vars
-let CONVERSATION_LIST_TEMPLATE = null;
+//let CONVERSATION_LIST_TEMPLATE = null;
 let customInitalizationDone = false;
-let conversationList = {};
+//let conversationList = {};
 let me, webSocket, conversationsTopic, userCallsTopic, presenceTopic, notificationChannel, activeCallNumber, agentPart, customerPart, conversationId;
 
 function LoadGenesysCloud(){
@@ -98,6 +98,9 @@ function handleNotification(message) {
           else
             customerPart = participant;
         }
+        if (participant.name === 'eurocenter_infoline_vdi_init' && participant.state === 'terminated'){
+          $("#initializationModalCenter").modal("hide") ;
+        }
     	};
       
       conversationId = notification.eventBody.id;
@@ -134,9 +137,7 @@ function customInitializationProcess(){
   console.debug("custom initialization started");
   customInitalizationDone = false;
   $("#initializationModalCenter").modal("show") ;
-  makeCall("EuroCenter_Infoline_VDI_Init@localhost").then(() => {
-      $("#initializationModalCenter").modal("hide");
-  })
+  makeCall("EuroCenter_Infoline_VDI_Init@localhost");
 }
 
 function answerCall() {
