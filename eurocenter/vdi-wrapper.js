@@ -50,13 +50,12 @@ function LoadGenesysCloud(){
 		.then((topicSubscriptions) => {
 			console.log('topicSubscriptions: ', topicSubscriptions);
 		})
-		.catch((err) => console.error(err));
+		.catch((err) => {
+      console.err("Error during initializing custom part");
+      console.error(err)
+    });
   } 
 
-function onGenesysContentLoaded(){
-  console.debug("starting custom part");
-  LoadGenesysCloud();
-}
 
 function handleNotification(message) {
 	// Parse notification string to a JSON object
@@ -202,4 +201,8 @@ $(document).ready(function(){
       
     }
   });
+
+  console.debug("starting custom part");
+  LoadGenesysCloud();
+
 });
