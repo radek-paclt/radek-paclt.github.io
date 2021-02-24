@@ -62,6 +62,8 @@ function handleNotification(message) {
 	// Parse notification string to a JSON object
 	const notification = JSON.parse(message.data);
 
+  console.info('Processing my message: ', notification);
+
 	// Discard unwanted notifications
 	if (notification.topicName.toLowerCase() === 'channel.metadata') {
 		console.info('Ignoring metadata: ', notification);
