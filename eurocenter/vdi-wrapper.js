@@ -6,7 +6,7 @@ const notificationsApi = new platformClient.NotificationsApi();
 const usersApi = new platformClient.UsersApi();
 const presenceApi = new platformClient.PresenceApi();
 
-const redirectUri = 'https://radek-paclt.github.io/vdi-wrapper.html';
+const redirectUri = 'https://radek-paclt.github.io/eurocenter/vdi-wrapper.html';
 
 // Set PureCloud settings
 client.setEnvironment('mypurecloud.de');
