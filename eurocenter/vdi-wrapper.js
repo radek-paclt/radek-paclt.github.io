@@ -19,6 +19,7 @@ let conversationList = {};
 let me, webSocket, conversationsTopic, userCallsTopic, presenceTopic, notificationChannel, activeCallNumber, agentPart, customerPart, conversationId;
 
 function LoadGenesysCloud(){
+  console.debug("loading genesys cloud");
   client.loginImplicitGrant(clientId, redirectUri)
 		.then(() => {
 
@@ -53,6 +54,7 @@ function LoadGenesysCloud(){
   } 
 
 function onGenesysContentLoaded(){
+  console.debug("starting custom part");
   LoadGenesysCloud();
 }
 
