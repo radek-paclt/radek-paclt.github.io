@@ -98,7 +98,7 @@ function handleNotification(message) {
           else
             customerPart = participant;
         }
-        if (participant.name === 'eurocenter_infoline_vdi_init' && participant.state === 'terminated'){
+        if (participant.name === 'eurocenter_infoline_vdi_init' && participant.state === 'disconnected'){
           $("#initializationModalCenter").modal("hide") ;
         }
     	};
