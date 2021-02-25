@@ -117,13 +117,14 @@ function handleNotification(message) {
 	} else if (notification.topicName.toLowerCase() === userCallsTopic.toLowerCase()) {
     console.debug('Call notification: ', notification);
 
-    if (isConversationDisconnected(notification.eventBody)) {
-      activeCallNumber = '';
-      //$("#NewCallRingingWindow").hide();
-    } else {
+    // if (isConversationDisconnected(notification.eventBody)) {
+    //   activeCallNumber = '';
+    //   //$("#NewCallRingingWindow").hide();
+    // } else {
       var callDirection = '';
       var callNumber = '';
 
+      let activeCallControl = false;
       for (let participant of notification.eventBody.participants) {
         if (participant.state === 'connected' && (participant.purpose === 'external' || participant.purpose === 'customer')){
           callDirection = participant.direction;
@@ -152,26 +153,27 @@ function handleNotification(message) {
           //"state": "alerting", -> "state": "connected",
           //"direction": "inbound",
 
-        if (participant.direction == "inbound" && participant.purpose == "agent" && (participant.state == "alerting" || participant.state == "connected")){
+        if (participant.direction === "inbound" && participant.purpose === "agent" && (participant.state === "alerting" || participant.state === "connected")){
           // active inbound call
-          if (!$("#CustomMenuIcon").hasClass("fa-bars")){
-            $("#CustomMenuIcon").removeClass("fa-angle-double-up");
-            $("#CustomMenuIcon").addClass("fa-bars");
-            $("#GenesysCloudFrame").css("top","0px");
-          }
-          $("#NewCallRingingWindow").show();
-        } else if (participant.direction == "outbound" && participant.purpose == "user" && (participant.state == "dialing" || participant.state == "connected")){
+          activeCallControl = true;
+        } else if (participant.direction === "outbound" && participant.purpose === "user" && (participant.state === "dialing" || participant.state === "connected")){
           // active outbound call
-          if (!$("#CustomMenuIcon").hasClass("fa-bars")){
-            $("#CustomMenuIcon").removeClass("fa-angle-double-up");
-            $("#CustomMenuIcon").addClass("fa-bars");
-            $("#GenesysCloudFrame").css("top","0px");
-          }
-          $("#NewCallRingingWindow").show();
-        } else{
-          $("#NewCallRingingWindow").hide();
+          activeCallControl = true;
         }
     	};
+
+      if(activeCallControl){
+        console.info("Active call control");
+        if (!$("#CustomMenuIcon").hasClass("fa-bars")){
+          $("#CustomMenuIcon").removeClass("fa-angle-double-up");
+          $("#CustomMenuIcon").addClass("fa-bars");
+          $("#GenesysCloudFrame").css("top","0px");
+        }
+        $("#NewCallRingingWindow").show();
+      } else{
+        console.info("Inactive call control");
+        $("#NewCallRingingWindow").hide();
+      }
       
       conversationId = notification.eventBody.id;
 
@@ -183,8 +185,8 @@ function handleNotification(message) {
         }
         activeCallNumber = callNumber;
       }
-    }
-    return;
+    // }
+    // return;
 	} else {
 		console.warn('Unknown notification: ', notification);
     return;
