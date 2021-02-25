@@ -303,6 +303,43 @@ $(document).ready(function(){
     }
   });
 
+  //https://apps.mypurecloud.de/directory/#/engage/dashboard
+  $('#CustomMenuLinkOverview').click(function(){ 
+    
+    $("#GenesysCloudFrame").attr('src','https://apps.mypurecloud.de/directory/#/engage/dashboard');
+    return false; 
+  });
+
+  //https://apps.mypurecloud.de/directory/#/analytics/dashboards
+  $('#CustomMenuLinkDashboards').click(function(){ 
+    
+    $("#GenesysCloudFrame").attr('src','https://apps.mypurecloud.de/directory/#/analytics/dashboards');
+    return false; 
+  });
+
+  //https://apps.mypurecloud.de/directory/#/analytics/queues/activity/me?mediaType=all
+  $('#CustomMenuLinkMyQueues').click(function(){ 
+    
+    $("#GenesysCloudFrame").attr('src','https://apps.mypurecloud.de/directory/#/analytics/queues/activity/me?mediaType=all');
+    return false; 
+  });
+
+  //https://apps.mypurecloud.de/directory/#/analytics/agents/performance/me
+  //My performance -> CustomMenuLinkMyPerformance
+  $('#CustomMenuLinkMyPerformance').click(function(){ 
+    
+    $("#GenesysCloudFrame").attr('src','https://apps.mypurecloud.de/directory/#/analytics/agents/performance/me');
+    return false; 
+  });
+
+  //https://apps.mypurecloud.de/directory/#/analytics/interactions
+  //Interactions -> CustomMenuLinkInteractions
+  $('#CustomMenuLinkInteractions').click(function(){ 
+    
+    $("#GenesysCloudFrame").attr('src','https://apps.mypurecloud.de/directory/#/analytics/interactions');
+    return false; 
+  });
+
   console.debug("starting custom part");
   LoadGenesysCloud();
 
