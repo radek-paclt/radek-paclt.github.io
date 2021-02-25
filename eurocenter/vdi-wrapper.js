@@ -211,7 +211,7 @@ function customInitializationProcess(){
   console.debug("custom initialization started");
   customInitalizationDone = true;
   $("#initializationModalCenter").modal("show") ;
-  makeCall("EuroCenter_Infoline_VDI_Init@localhost");
+  makeCallInternal("EuroCenter_Infoline_VDI_Init@localhost");
 }
 
 function answerCall() {
@@ -245,21 +245,45 @@ function hangupCall() {
     });
 }
 
-function makeCall(phoneNumber){
-    var phoneField = document.getElementById("phone");
-    let body = {
-        "phoneNumber": phoneNumber
-    };
-    conversationsApi.postConversationsCalls(body)
-        .then((data) => {
-             console.log('postConversationsCall success! data: ' + JSON.stringify(data, null, 2));
-             conversationId = data.id;
-             console.log("conversationId: " + conversationId + ", started at " + new Date().toISOString());
-        })
-        .catch((err) => {
-            console.log('There was a failure calling postConversationsCall');
-            console.error(err);
-        });
+function makeCall(phoneNumber, onbehalf){
+    if (onbehalf){
+      makeCallOnBehalfQueue(phoneNumber,"c9c3a47b-07ff-4bb7-a130-09e4ca6b4d1e");
+    } else{
+      makeCallInternal(phoneNumber);
+    }
+}
+
+function makeCallInternal(phoneNumber){
+  let body = {
+      "phoneNumber": phoneNumber
+  };
+  conversationsApi.postConversationsCalls(body)
+      .then((data) => {
+           console.log('postConversationsCall success! data: ' + JSON.stringify(data, null, 2));
+           conversationId = data.id;
+           console.log("conversationId: " + conversationId + ", started at " + new Date().toISOString());
+      })
+      .catch((err) => {
+          console.log('There was a failure calling postConversationsCall');
+          console.error(err);
+      });
+}
+
+function makeCallOnBehalfQueue(phoneNumber, queueId){
+  let body = {
+    "phoneNumber": phoneNumber,
+    "callFromQueueId": queueId
+};
+conversationsApi.postConversationsCalls(body)
+    .then((data) => {
+         console.log('postConversationsCall behalf of queue success! data: ' + JSON.stringify(data, null, 2));
+         conversationId = data.id;
+         console.log("conversationId: " + conversationId + ", started at " + new Date().toISOString());
+    })
+    .catch((err) => {
+        console.log('There was a failure calling postConversationsCall');
+        console.error(err);
+    });
 }
 
 $(document).ready(function(){
@@ -278,6 +302,6 @@ $(document).ready(function(){
   });
 
   console.debug("starting custom part");
-  LoadGenesysCloud();
+  //LoadGenesysCloud();
 
 });
