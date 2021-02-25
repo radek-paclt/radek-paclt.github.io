@@ -90,7 +90,7 @@ function aggregatedDataForAgent(message){
         
       } else if (metric.metric === 'tSystemPresence' && metric.qualifier === 'AVAILABLE'){
         //AgentStatTotalAvailable
-        $("#AgentStatTotalAvailable").text(metric.stats.sum.toMMSS());
+        $("#AgentStatTotalAvailable").text(String(metric.stats.sum).toMMSS());
       }
     }
   }
