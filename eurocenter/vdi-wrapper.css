@@ -32,6 +32,17 @@ iframe {
     left:7px;
 }
 
+.customMenuStatistics{
+    position:fixed; 
+    top:7px; 
+    left:50%;
+    z-index: 99999;
+    background-color: whitesmoke;
+    border-radius: 5px;
+    padding: 5px;
+    border-color: black;
+}
+
 #NewCallRingingWindow{
     background-color: whitesmoke;
     border-radius: 5px;

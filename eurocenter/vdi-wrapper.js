@@ -15,8 +15,21 @@ client.setPersistSettings(true, 'vdi-helper-app');
 // Set local vars
 //let CONVERSATION_LIST_TEMPLATE = null;
 let customInitalizationDone = false;
-//let conversationList = {};
-let me, webSocket, conversationsTopic, userCallsTopic, presenceTopic, notificationChannel, activeCallNumber, agentPart, customerPart, conversationId;
+//let conversationList = {}; conversationsTopic
+let me, webSocket, userCallsTopic, presenceTopic, aggregatesTopic, notificationChannel, activeCallNumber;
+let agentPart, customerPart, conversationId;
+
+String.prototype.toMMSS = function () {
+  var sec_num = parseInt(this, 10); // don't forget the second param
+  var hours   = Math.floor(sec_num / 3600);
+  var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+  var seconds = sec_num - (hours * 3600) - (minutes * 60);
+
+  if (hours   < 10) {hours   = "0"+hours;}
+  if (minutes < 10) {minutes = "0"+minutes;}
+  if (seconds < 10) {seconds = "0"+seconds;}
+  return minutes+':'+seconds;
+}
 
 function LoadGenesysCloud(){
   console.debug("loading genesys cloud");
@@ -40,15 +53,21 @@ function LoadGenesysCloud(){
 			webSocket.onmessage = handleNotification;
 
 			// Subscribe to authenticated user's conversations
-			conversationsTopic = 'v2.users.' + me.id + '.conversations';
+			//conversationsTopic = 'v2.users.' + me.id + '.conversations';
       userCallsTopic = 'v2.users.' + me.id + '.conversations.calls'; 
       presenceTopic = 'v2.users.' + me.id + '.presence';
+      //v2.analytics.users.6951bad8-09a7-43da-8bdc-c5a408219951.aggregates
+      aggregatesTopic = 'v2.analytics.users.' + me.id + '.aggregates';
 
-			const NotificationBody = [ { id: conversationsTopic }, { id: presenceTopic }, { id: userCallsTopic } ];
+			const NotificationBody = [ { id: presenceTopic }, { id: userCallsTopic }, { id: aggregatesTopic } ];
+      //removed { id: conversationsTopic },
 			return notificationsApi.putNotificationsChannelSubscriptions(notificationChannel.id, NotificationBody);
 		})
 		.then((topicSubscriptions) => {
 			console.log('topicSubscriptions: ', topicSubscriptions);
+      if (me.presence.presenceDefinition.systemPresence.toUpperCase() !== 'OFFLINE'  && !customInitalizationDone){
+        customInitializationProcess();
+      }
 		})
 		.catch((err) => {
       console.err("Error during initializing custom part");
@@ -56,6 +75,26 @@ function LoadGenesysCloud(){
     });
   } 
 
+function aggregatedDataForAgent(message){
+  for (let data of message.data){
+    for (let metric of data.metrics){
+      if (metric.metric === 'tAlert'){
+        //AgentStatInbound
+        $("#AgentStatInbound").text(metric.stats.count);
+      } else if (metric.metric === 'tDialing'){
+        //AgentStatOutbound
+        $("#AgentStatOutbound").text(metric.stats.count);
+      } else if (metric.metric === 'tAnswered'){
+        
+      } else if (metric.metric === 'tTalk'){
+        
+      } else if (metric.metric === 'tSystemPresence' && metric.qualifier === 'AVAILABLE'){
+        //AgentStatTotalAvailable
+        $("#AgentStatTotalAvailable").text(metric.stats.sum.toMMSS());
+      }
+    }
+  }
+}
 
 function handleNotification(message) {
 	// Parse notification string to a JSON object
@@ -70,15 +109,17 @@ function handleNotification(message) {
 	} else if (notification.topicName.toLowerCase() === presenceTopic.toLowerCase()) {
 		console.log('Agent status notification: ', notification);
     console.log('Agent in state ' + notification.eventBody.presenceDefinition.systemPresence);
-    if (notification.eventBody.presenceDefinition.systemPresence !== 'OFFLINE' && !customInitalizationDone)
-      customInitializationProcess();
+    return;
+	} else if (notification.topicName.toLowerCase() === aggregatesTopic.toLowerCase()) {
+		console.log('Aggregated data of logged agent: ', notification);
+    aggregatedDataForAgent(notification);
     return;
 	} else if (notification.topicName.toLowerCase() === userCallsTopic.toLowerCase()) {
     console.debug('Call notification: ', notification);
 
     if (isConversationDisconnected(notification.eventBody)) {
       activeCallNumber = '';
-      $("#NewCallRingingWindow").hide();
+      //$("#NewCallRingingWindow").hide();
     } else {
       var callDirection = '';
       var callNumber = '';
@@ -87,9 +128,9 @@ function handleNotification(message) {
         if (participant.state === 'connected' && (participant.purpose === 'external' || participant.purpose === 'customer')){
           callDirection = participant.direction;
           callNumber = participant.address;
-            $("#NewCallRingingWindow").hide();
+            //$("#NewCallRingingWindow").hide();
         } else{
-            $("#NewCallRingingWindow").show();
+            //$("#NewCallRingingWindow").show();
         }
         if ((participant.purpose == "user") || (participant.purpose == "agent")) {
           if (participant.user.id == me.id) {
@@ -100,6 +141,35 @@ function handleNotification(message) {
         }
         if (participant.name === 'eurocenter_infoline_vdi_init' && participant.state === 'disconnected'){
           $("#initializationModalCenter").modal("hide") ;
+        }
+
+        //outbound voice interaction
+          //"purpose": "user",
+          //"state": "dialing", -> "state": "connected",
+          //"direction": "outbound",
+        //inbound voice interaction
+          //"purpose": "agent",
+          //"state": "alerting", -> "state": "connected",
+          //"direction": "inbound",
+
+        if (participant.direction == "inbound" && participant.purpose == "agent" && (participant.state == "alerting" || participant.state == "connected")){
+          // active inbound call
+          if (!$("#CustomMenuIcon").hasClass("fa-bars")){
+            $("#CustomMenuIcon").removeClass("fa-angle-double-up");
+            $("#CustomMenuIcon").addClass("fa-bars");
+            $("#GenesysCloudFrame").css("top","0px");
+          }
+          $("#NewCallRingingWindow").show();
+        } else if (participant.direction == "outbound" && participant.purpose == "user" && (participant.state == "dialing" || participant.state == "connected")){
+          // active outbound call
+          if (!$("#CustomMenuIcon").hasClass("fa-bars")){
+            $("#CustomMenuIcon").removeClass("fa-angle-double-up");
+            $("#CustomMenuIcon").addClass("fa-bars");
+            $("#GenesysCloudFrame").css("top","0px");
+          }
+          $("#NewCallRingingWindow").show();
+        } else{
+          $("#NewCallRingingWindow").hide();
         }
     	};
       
@@ -135,7 +205,7 @@ function isConversationDisconnected(conversation) {
 
 function customInitializationProcess(){
   console.debug("custom initialization started");
-  customInitalizationDone = false;
+  customInitalizationDone = true;
   $("#initializationModalCenter").modal("show") ;
   makeCall("EuroCenter_Infoline_VDI_Init@localhost");
 }
