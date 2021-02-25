@@ -65,10 +65,11 @@ function LoadGenesysCloud(){
 		})
 		.then((topicSubscriptions) => {
 			console.log('topicSubscriptions: ', topicSubscriptions);
+      $("#customMenuStatistics").show();
+      $("#customMenuButton").show();
+      
       if (me.presence.presenceDefinition.systemPresence.toUpperCase() !== 'OFFLINE'  && !customInitalizationDone){
         customInitializationProcess();
-        $("#customMenuStatistics").show();
-        $("#customMenuButton").show();
       }
 		})
 		.catch((err) => {
@@ -336,7 +337,7 @@ $(document).ready(function(){
   //Interactions -> CustomMenuLinkInteractions
   $('#CustomMenuLinkInteractions').click(function(){ 
     
-    $("#GenesysCloudFrame").attr('src','https://apps.mypurecloud.de/directory/#/analytics/interactions');
+    $("#GenesysCloudFrame").attr('src','https://apps.mypurecloud.de/directory/#/analytics/agents/performance/me');
     return false; 
   });
 
