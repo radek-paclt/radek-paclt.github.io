@@ -112,7 +112,7 @@ function handleNotification(message) {
     return;
 	} else if (notification.topicName.toLowerCase() === aggregatesTopic.toLowerCase()) {
 		console.log('Aggregated data of logged agent: ', notification);
-    aggregatedDataForAgent(notification);
+    aggregatedDataForAgent(notification.eventBody);
     return;
 	} else if (notification.topicName.toLowerCase() === userCallsTopic.toLowerCase()) {
     console.debug('Call notification: ', notification);
