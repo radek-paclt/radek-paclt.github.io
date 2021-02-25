@@ -67,6 +67,7 @@ function LoadGenesysCloud(){
 			console.log('topicSubscriptions: ', topicSubscriptions);
       if (me.presence.presenceDefinition.systemPresence.toUpperCase() !== 'OFFLINE'  && !customInitalizationDone){
         customInitializationProcess();
+        $("#customMenuStatistics").show();
       }
 		})
 		.catch((err) => {
