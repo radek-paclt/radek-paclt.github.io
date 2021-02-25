@@ -302,6 +302,6 @@ $(document).ready(function(){
   });
 
   console.debug("starting custom part");
-  //LoadGenesysCloud();
+  LoadGenesysCloud();
 
 });
