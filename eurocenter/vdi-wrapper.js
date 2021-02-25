@@ -153,10 +153,12 @@ function handleNotification(message) {
           //"state": "alerting", -> "state": "connected",
           //"direction": "inbound",
 
-        if (participant.direction === "inbound" && participant.purpose === "agent" && (participant.state === "alerting" || participant.state === "connected")){
+        //if (participant.direction === "inbound" && participant.purpose === "agent" && (participant.state === "alerting" || participant.state === "connected")){
+        //} else if (participant.direction === "outbound" && participant.purpose === "user" && (participant.state === "dialing" || participant.state === "connected")){
+        if (participant.direction === "inbound" && participant.purpose === "agent" && participant.state === "alerting"){
           // active inbound call
           activeCallControl = true;
-        } else if (participant.direction === "outbound" && participant.purpose === "user" && (participant.state === "dialing" || participant.state === "connected")){
+        } else if (participant.direction === "outbound" && participant.purpose === "user" && participant.state === "dialing"){
           // active outbound call
           activeCallControl = true;
         }
