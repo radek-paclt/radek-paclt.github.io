@@ -248,17 +248,17 @@ function hangupCall() {
     });
 }
 
-function makeCall(phoneNumber, onbehalf){
-    if (onbehalf){
-      makeCallOnBehalfQueue(phoneNumber,"c9c3a47b-07ff-4bb7-a130-09e4ca6b4d1e");
-    } else{
-      makeCallInternal(phoneNumber);
-    }
-}
+// function makeCall(phoneNumber, onbehalf){
+//     if (onbehalf){
+//       makeCallOnBehalfQueue(phoneNumber,"c9c3a47b-07ff-4bb7-a130-09e4ca6b4d1e");
+//     } else{
+//       makeCallInternal(phoneNumber);
+//     }
+// }
 
-function makeCallInternal(phoneNumber){
+function makeCallInternal(userId){
   let body = {
-      "phoneNumber": phoneNumber
+      "callUserId": userId
   };
   conversationsApi.postConversationsCalls(body)
       .then((data) => {
@@ -302,6 +302,13 @@ $(document).ready(function(){
       $("#GenesysCloudFrame").css("top","0px");
       
     }
+  });
+
+  //dropdownInternalCall
+  $(".internalCallsMenu a").click(function(){
+
+    makeCallInternal($(this).attr('id'));
+  
   });
 
   //https://apps.mypurecloud.de/directory/#/engage/dashboard

@@ -29,23 +29,35 @@
     <div class="row justify-content-left align-items-center">
 
       <div class="col-auto customCol">
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" value="" id="MakeCallBehalfQueue">
-          <label class="form-check-label" for="MakeCallBehalfQueue">
-            On Behalf?
-          </label>
-        </div>
-      </div>
-
-      <div class="col-auto customCol">
         <input type="text" id="PhoneNumber" class="form-control" placeholder="Phone number">
       </div>
       <div class="col-auto customCol">
         <button type="button" name="MakeCallButton" class="btn btn-primary"
-          onclick="makeCall(PhoneNumber.value, MakeCallBehalfQueue.checked);">
-            Make call
+          onclick="makeCallOnBehalfQueue(PhoneNumber.value, 'c9c3a47b-07ff-4bb7-a130-09e4ca6b4d1e');">
+            Call customer
           </button>
       </div>
+
+      <div class="col-auto customCol">
+        <div class="dropdown show">
+          <a class="btn btn-primary dropdown-toggle" href="#" role="button" id="dropdownInternalCall" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Call colleague
+          </a>       
+          <div class="dropdown-menu internalCallsMenu" aria-labelledby="dropdownMenuLink">
+            <a class="dropdown-item" id="74edaf88-9d36-4a2e-b8a2-1bc821fefff8" href="#">Jan Miklos Kovacs</a>
+            <a class="dropdown-item" id="66af4c55-ef9f-4604-bceb-32e8a1887c52" href="#">Kevin Terret</a>
+            <a class="dropdown-item" id="ee3fa0fc-612e-4f18-a9d4-d14deead6dcc" href="#">Petr Utratil</a>
+            <a class="dropdown-item" id="6951bad8-09a7-43da-8bdc-c5a408219951" href="#">Radek Paclt</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-auto customCol">
+        <button type="button" name="MakeCallInternalButton" class="btn btn-primary"
+          onclick="makeCallInternal(PhoneNumber.value, MakeCallBehalfQueue.checked);">
+            Call customer
+          </button>
+      </div>
+
       <div class="col customCol">
         <div class="dropdown show" style="margin-right: 60px; text-align: right;">
           <a class="btn btn-primary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
