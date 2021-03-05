@@ -214,7 +214,7 @@ function customInitializationProcess(){
   console.debug("custom initialization started");
   customInitalizationDone = true;
   $("#initializationModalCenter").modal("show") ;
-  makeCallInternal("EuroCenter_Infoline_VDI_Init@localhost");
+  makeCallFakeInternal("EuroCenter_Infoline_VDI_Init@localhost");
 }
 
 function answerCall() {
@@ -270,6 +270,22 @@ function makeCallInternal(userId){
           console.log('There was a failure calling postConversationsCall');
           console.error(err);
       });
+}
+
+function makeCallFakeInternal(phone){
+  let body = {
+    "phoneNumber": phone
+  };
+  conversationsApi.postConversationsCalls(body)
+    .then((data) => {
+         console.log('makeCallFakeInternal - postConversationsCall success! data: ' + JSON.stringify(data, null, 2));
+         conversationId = data.id;
+         console.log("conversationId: " + conversationId + ", started at " + new Date().toISOString());
+    })
+    .catch((err) => {
+        console.log('There was a failure calling makeCallFakeInternal');
+        console.error(err);
+    });
 }
 
 function makeCallOnBehalfQueue(phoneNumber, queueId){
