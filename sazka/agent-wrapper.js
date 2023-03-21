@@ -4,7 +4,9 @@ const client = platformClient.ApiClient.instance;
 const conversationsApi = new platformClient.ConversationsApi();
 const usersApi = new platformClient.UsersApi();
 
-const redirectUri = 'http://localhost:5500/index.html';
+const redirectUri = 'https://radek-paclt.github.io/sazka/index.html';
+//https://radek-paclt.github.io/sazka/index.html
+//http://localhost:5500/index.html
 
 // Set PureCloud settings
 client.setEnvironment('mypurecloud.de');
