@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <title>Support page for agents</title>
+   
+  <script src="https://sdk-cdn.mypurecloud.com/javascript/latest/purecloud-platform-client-v2.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+</head>
+
+<body style="background-color: white;">
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12 ">
+                <h1>Odchozí SMS zákazníkovi</h1>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="input-group has-validation">
+                    <span class="input-group-text" >Tel. číslo:</span>
+                    <input type="text" class="form-control" id="validationCustomPhoneNumber" aria-describedby="inputGroupPrepend">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text" >ID aktivity:</span>
+                    <input type="text" class="form-control" id="validationCustomPreviousActivity" aria-describedby="inputGroupPrepend">
+                </div>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-12 ">
+                <button class="btn btn-primary" id="SendSMSButton">Vytvořit SMS požadavek</button>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-12 ">
+                <h1>Manuální aktivita</h1>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text" id="inputGroupPrepend">Typ úkolu:</span>
+                    <input type="text" class="form-control" id="validationCustomTask" value="Offline work" aria-describedby="inputGroupPrepend" required>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text" id="inputGroupPrepend">Popis:</span>
+                    <input type="text" class="form-control" id="validationCustomTaskDescription" aria-describedby="inputGroupPrepend" >
+                    </div>
+                </div>
+            
+            <div class="col-12 mt-4">
+                <button class="btn btn-primary" id="CreateTaskButton" type="submit">Vytvořit manuální úkol</button>
+            </div>
+        </div>
+    </div>  
+    
+    <script src="crm-wrapper.js"></script>
+</body>
+</html>
