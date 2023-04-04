@@ -24,11 +24,6 @@
       <div class="tab-content" id="nav-tabContent">
         <div class="tab-pane fade show active" id="nav-sms" role="tabpanel" aria-labelledby="nav-sms-tab">
             <div class="container mt-4">
-                <div class="row">
-                    <div class="col-12 ">
-                        <h1>Odchozí SMS zákazníkovi</h1>
-                    </div>
-                </div>
                 <div class="row mt-4">
                     <div class="col-md-4" style="padding-top: 5px;">
                         <div class="input-group has-validation">
@@ -53,11 +48,6 @@
         <div class="tab-pane fade" id="nav-offline" role="tabpanel" aria-labelledby="nav-offline-tab">
             <div class="container mt-4">
                 <div class="row mt-4">
-                    <div class="col-12 ">
-                        <h1>Manuální aktivita</h1>
-                    </div>
-                </div>
-                <div class="row mt-4">
                     <div class="col-md-4" style="padding-top: 5px;">
                         <div class="input-group">
                             <span class="input-group-text" style="display:block;width:100px;" id="inputGroupPrepend">Typ úkolu:</span>
@@ -79,12 +69,7 @@
         </div>
         <div class="tab-pane fade" id="nav-pos" role="tabpanel" aria-labelledby="nav-pos-tab">
             <div class="container mt-4">
-                <div class="row">
-                    <div class="col-12 ">
-                        <h1>Vyhledávání a eskalace POS</h1>
-                    </div>
-                </div>
-                <div class="row mt-3" style="padding-top: 5px;">
+                <div class="row" style="padding-top: 5px;">
                     <div class="col-auto" >
                         <div class="btn-group" role="group">
                             <button type="button" id="posSearchingById" class="btn btn-primary" onClick="(function(){
@@ -106,7 +91,7 @@
                         <button class="btn btn-primary" id="SearchPos">Vyhledat</button>
                     </div>
                 </div>
-                <div class="row mt-4">
+                <div class="row mt-1">
                     <div class="col-12">
                         <div class="alert alert-danger" style="display: none;" role="alert" id="posSearchResultMessage">
                         </div>
@@ -162,7 +147,7 @@
                             <div class="col-auto mt-2">
                                 <button type="button" class="btn btn-danger" id="poscornPobocka">CORN</button>
                             </div>
-                            <div class="col-4 mt-2">
+                            <div class="col-4 mt-1">
                                 <div class="dropdown">
                                     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
                                         Typ eskalace pro POS
@@ -172,7 +157,7 @@
                                   </div>
                             </div>
                         </div>
-                        <div class="row mt-4 justify-content-center justify-center">
+                        <div class="row mt-1 justify-content-center justify-center">
                             <div class="col-12">
                                 <div class="mb-3">
                                     <label for="exampleFormControlTextarea1" class="form-label"></label>
@@ -186,7 +171,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row mt-4 justify-content-center justify-center">
+                        <div class="row mt-1 justify-content-center justify-center">
                             <div class="col-12">
                                 <button class="btn btn-primary" disabled id="posEscalateButton">Eskalovat požadavek</button>
                             </div>
