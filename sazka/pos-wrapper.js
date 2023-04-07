@@ -18,6 +18,7 @@ client.setPersistSettings(true, 'agent-helper-app');
 
 const queryString = window.location.search;
 console.log(queryString);
+const urlParams = new URLSearchParams(queryString);
 
 const forms = document.querySelectorAll('.needs-validation')
 
@@ -25,17 +26,6 @@ let me;
 let searchingById = true;
 let selectedBrancheInfo;
 let selectedStandardResponse;
-
-Array.from(forms).forEach(form => {
-    form.addEventListener('submit', event => {
-        if (!form.checkValidity()) {
-        event.preventDefault()
-        event.stopPropagation()
-        }
-
-        form.classList.add('was-validated')
-    }, false)
-});
 
 
 document.addEventListener("DOMContentLoaded", function(){
@@ -47,64 +37,36 @@ document.addEventListener("DOMContentLoaded", function(){
         .then((userMe) => {
             console.log('userMe: ', userMe);
             me = userMe;
+            if (urlParams.has('posnumber')){
+                let posNumber = urlParams.get('posnumber');
+                console.log("posNumber: " + posNumber);
+                //"tel:+420724660087"
+                if (posNumber.length > 9){
+                    posNumber = posNumber.slice(-9);
+                }
+                console.log("posNumber: " + posNumber);
+
+                searchingById = false;
+                document.getElementById('posSearchingById').classList.replace('btn-primary','btn-outline-primary');
+                document.getElementById('searchingByPhone').classList.replace('btn-outline-primary','btn-primary');
+
+                document.getElementById("posSearchByInput").value = posNumber;
+
+                FindPos();
+            }
         })
         .catch((err) => {
             console.error(err)
         });
 });
 
-document.getElementById("SendSMSButton").addEventListener("click", function(){
-    console.debug("CreateSMS clicked");
-    let actionId = "custom_-_d356a0e2-77b8-42c8-989e-f1e23ac2f853";
-    let body = {
-        "PhoneNumber": document.getElementById("validationCustomPhoneNumber").value,
-        "PreferredAgent": me.id,
-        "AgentName": me.name,
-        "ServiceName": "SMS Automat",
-        "CurrentTime": new Date().toISOString(),
-        "PreviousActivityTask": document.getElementById("validationCustomPreviousActivity").value ?? ""
-    };
-
-    apiInstance.postIntegrationsActionExecute(actionId, body)
-        .then((data) => {
-            console.log(`postIntegrationsActionExecute done! data: ${JSON.stringify(data, null, 2)}`);
-        })
-        .catch((err) => {
-            console.log('There was a failure calling postIntegrationsActionExecute');
-            console.error(err);
-        }).then(() =>{
-            document.getElementById("validationCustomPreviousActivity").value = "";
-            document.getElementById("validationCustomPhoneNumber").value = "";
-        });
-});
-
-document.getElementById("CreateTaskButton").addEventListener("click", function(){
-    console.debug("CreateTaskButton clicked");
-    let actionId = "custom_-_96939603-0bc1-44f9-a2a9-80e6402c20d8";
-    let body = {
-        "PreferredAgent": me.id,
-        "AgentName": me.name,
-        "ServiceName": document.getElementById("validationCustomTask").value ?? "",
-        "CurrentTime": new Date().toISOString(),
-        "Message": document.getElementById("validationCustomTaskDescription").value ?? ""
-    };
-
-    apiInstance.postIntegrationsActionExecute(actionId, body)
-        .then((data) => {
-            console.log(`postIntegrationsActionExecute done! data: ${JSON.stringify(data, null, 2)}`);
-        })
-        .catch((err) => {
-            console.log('There was a failure calling postIntegrationsActionExecute');
-            console.error(err);
-        }).then(() =>{
-            document.getElementById("validationCustomTask").value = "";
-            document.getElementById("validationCustomTaskDescription").value = "";
-        });
-});
-
 //vyhledani POS dle tel. cisla nebo ID
 document.getElementById("SearchPos").addEventListener("click", function(){
     console.debug("SearchPosButton clicked");
+    FindPos();
+});
+
+function FindPos(){
     selectedBrancheInfo = null;
     selectedStandardResponse = null;
     document.getElementById("posEscalateButton").disabled = true;
@@ -117,7 +79,7 @@ document.getElementById("SearchPos").addEventListener("click", function(){
             "Id": document.getElementById("posSearchByInput").value
         };
 
-        CallingBranchInfoRequest(actionId,body);
+        CallingBranchInfoRequest(actionId,body,document.getElementById("posSearchByInput").value);
     } else{
         //BranchesInformations by Phone
         let actionId = "custom_-_65489fa7-c5ea-4fad-8d98-bcaf37f07ba6";
@@ -126,9 +88,9 @@ document.getElementById("SearchPos").addEventListener("click", function(){
             "phoneNumber": document.getElementById("posSearchByInput").value
         };
 
-        CallingBranchInfoRequest(actionId,body);
+        CallingBranchInfoRequest(actionId,body,document.getElementById("posSearchByInput").value);
     }
-});
+}
 
 //Kliknuti na pozadavek na eskalovani do JIRA - vola se ulozena akce v Genesys Cloud
 document.getElementById("posEscalateButton").addEventListener("click", function(){
@@ -231,7 +193,7 @@ function FillStandardResponse(id, name, content){
 }
 
 //Metoda pro volani BrancheInfo na SAGu pro vraceni detailu POSu - zobrazuje se jen a pouze v pripade singlematch
-function CallingBranchInfoRequest(actionId, body){
+function CallingBranchInfoRequest(actionId, body, lookedValue){
     document.getElementById("posSearchResultMessage").innerHTML = "";
     document.getElementById("posSearchResultMessage").style.display = "none";
     document.getElementById("posDetails").style.display = "none";
@@ -297,16 +259,16 @@ function CallingBranchInfoRequest(actionId, body){
                 
             } else if (data.branchesInformations.length > 1){
                 console.log("multimatch");
-                document.getElementById("posSearchResultMessage").innerHTML = "Nalezeno více záznamů";
+                document.getElementById("posSearchResultMessage").innerHTML = `Nalezeno více záznamů pro ${lookedValue}`;
                 document.getElementById("posSearchResultMessage").style.display = "block";
             } else{
                 console.log("nomatch");
-                document.getElementById("posSearchResultMessage").innerHTML = "Záznam nenalezen";
+                document.getElementById("posSearchResultMessage").innerHTML = `Záznam ${lookedValue} nenalezen`;
                 document.getElementById("posSearchResultMessage").style.display = "block";
             }
         } else{
             console.log("no data found");
-            document.getElementById("posSearchResultMessage").innerHTML = "Záznam nenalezen";
+            document.getElementById("posSearchResultMessage").innerHTML = `Záznam ${lookedValue} nenalezen`;
             document.getElementById("posSearchResultMessage").style.display = "block";
         }
     })

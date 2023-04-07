@@ -4,7 +4,8 @@ const client = platformClient.ApiClient.instance;
 const conversationsApi = new platformClient.ConversationsApi();
 const usersApi = new platformClient.UsersApi();
 
-const redirectUri = 'https://radek-paclt.github.io/sazka/index.html';
+//const redirectUri = 'https://radek-paclt.github.io/sazka/index.html';
+var redirectUri = window.location.href.split('?')[0];
 //https://radek-paclt.github.io/sazka/index.html
 //http://localhost:5500/index.html
 
