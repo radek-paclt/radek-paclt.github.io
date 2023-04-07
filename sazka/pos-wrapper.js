@@ -4,6 +4,8 @@ const client = platformClient.ApiClient.instance;
 const apiInstance = new platformClient.IntegrationsApi();
 const usersApi = new platformClient.UsersApi();
 const responseApi = new platformClient.ResponseManagementApi();
+const conversationsApi = new platformClient.ConversationsApi();
+const notificationsApi = new platformClient.NotificationsApi();
 
 //const redirectUri = 'https://radek-paclt.github.io/sazka/support.html';
 var redirectUri = window.location.href.split('?')[0];
@@ -26,6 +28,7 @@ let me;
 let searchingById = true;
 let selectedBrancheInfo;
 let selectedStandardResponse;
+let activeCallNumber, customerParticipantId, conversationId = "";
 
 
 document.addEventListener("DOMContentLoaded", function(){
@@ -37,28 +40,158 @@ document.addEventListener("DOMContentLoaded", function(){
         .then((userMe) => {
             console.log('userMe: ', userMe);
             me = userMe;
-            if (urlParams.has('posnumber')){
-                let posNumber = urlParams.get('posnumber');
-                console.log("posNumber: " + posNumber);
-                //"tel:+420724660087"
-                if (posNumber.length > 9){
-                    posNumber = posNumber.slice(-9);
-                }
-                console.log("posNumber: " + posNumber);
 
-                searchingById = false;
-                document.getElementById('posSearchingById').classList.replace('btn-primary','btn-outline-primary');
-                document.getElementById('searchingByPhone').classList.replace('btn-outline-primary','btn-primary');
+            let opts = { 
+                'communicationType': "Call"
+            };
+            
+            conversationsApi.getConversations(opts)
+            .then((data) => {
+                console.log(`getConversations success! data: ${JSON.stringify(data, null, 2)}`);
+                if(data.entities.length > 0){
+                    for(const entity of data.entities){
+                        var callDirection = '';
+                        var callNumber = '';
 
-                document.getElementById("posSearchByInput").value = posNumber;
+                        for(const participant of entity.participants){
+                            if (participant.calls[0].state === 'connected' && (participant.purpose === 'external' || participant.purpose === 'customer')){
+                                callDirection = participant.direction;
+                                callNumber = participant.address;
+                                if (participant.purpose === 'customer')
+                                    customerParticipantId = participant.id;
+                                break;  
+                            }
+                        }
 
-                FindPos();
-            }
-        })
+                        if (callNumber !== activeCallNumber && callNumber !== ''){
+                            if (callDirection === 'inbound') {
+                                console.log('Příchozí hovor z čísla ' + callNumber);
+                            } else {
+                                console.log('Odchozí hovor na číslo ' + callNumber);
+                            }
+                            //if (activeCallNumber !== callNumber){
+                                activeCallNumber = callNumber;
+                                conversationId = entity.id;
+
+                                if (activeCallNumber.length > 9){
+                                    activeCallNumber = activeCallNumber.slice(-9);
+                                }
+            
+                                searchingById = false;
+                                document.getElementById('posSearchingById').classList.replace('btn-primary','btn-outline-primary');
+                                document.getElementById('searchingByPhone').classList.replace('btn-outline-primary','btn-primary');
+            
+                                document.getElementById("posSearchByInput").value = activeCallNumber;
+            
+                                FindPos();
+                            //}
+                        }
+                    }
+                  }
+              
+            })
+            .catch((err) => {
+                console.log('There was a failure calling getConversations');
+                console.error(err);
+            });
+
+            return notificationsApi.postNotificationsChannels();
+        }).then((channel) => {
+			console.log('channel: ', channel);
+			notificationChannel = channel;
+
+			// Set up web socket
+			webSocket = new WebSocket(notificationChannel.connectUri);
+			webSocket.onmessage = handleNotification;
+
+			// Subscribe to authenticated user's conversations
+			conversationsTopic = 'v2.users.' + me.id + '.conversations';
+
+			const NotificationBody = [ { id: conversationsTopic } ];
+			return notificationsApi.putNotificationsChannelSubscriptions(notificationChannel.id, NotificationBody);
+		})
+		.then((topicSubscriptions) => {
+			console.log('topicSubscriptions: ', topicSubscriptions);
+		})
+
         .catch((err) => {
             console.error(err)
         });
 });
+
+function handleNotification(message) {
+	// Parse notification string to a JSON object
+	const notification = JSON.parse(message.data);
+
+	// Discard unwanted notifications
+	if (notification.topicName.toLowerCase() === 'channel.metadata') {
+		console.info('Ignoring metadata: ', notification);
+        return;
+	} else if (notification.topicName.toLowerCase() === conversationsTopic.toLowerCase()) {
+		console.debug('Notification: ', notification);
+        if (isConversationDisconnected(notification.eventBody)) {
+            activeCallNumber = "";
+            conversationId = "";
+            customerParticipantId = "";
+        } else {
+            var callDirection = '';
+            var callNumber = '';
+
+            for (let participant of notification.eventBody.participants) {
+                if (participant.calls[0].state === 'connected' && (participant.purpose === 'external' || participant.purpose === 'customer')){
+                    callDirection = participant.direction;
+                    callNumber = participant.address;
+
+                    if (participant.purpose === 'customer')
+                        customerParticipantId = participant.id;
+                    break;  
+                }
+            };
+            
+            if (callNumber !== activeCallNumber && callNumber !== ''){
+                if (callDirection === 'inbound') {
+                    console.log('Příchozí hovor z čísla ' + callNumber);
+                } else {
+                    console.log('Odchozí hovor na číslo ' + callNumber);
+                }
+                if (activeCallNumber === "" && activeCallNumber !== callNumber){
+                    activeCallNumber = callNumber;
+
+                    conversationId = notification.eventBody.id;
+
+                    if (activeCallNumber.length > 9){
+                        activeCallNumber = activeCallNumber.slice(-9);
+                    }
+
+                    searchingById = false;
+                    document.getElementById('posSearchingById').classList.replace('btn-primary','btn-outline-primary');
+                    document.getElementById('searchingByPhone').classList.replace('btn-outline-primary','btn-primary');
+
+                    document.getElementById("posSearchByInput").value = activeCallNumber;
+
+                    FindPos();
+                }
+            }
+        }
+        return;
+    } else {
+        console.warn('Unknown notification: ', notification);
+    return;
+  }
+}
+
+
+function isConversationDisconnected(conversation) {
+	let isConnected = false;
+	conversation.participants.some((participant) => {
+		if (participant.calls[0].state === 'connected') {
+			isConnected = true;
+			return true;
+		}
+	});
+
+	return !isConnected;
+}
 
 //vyhledani POS dle tel. cisla nebo ID
 document.getElementById("SearchPos").addEventListener("click", function(){
@@ -165,6 +298,22 @@ function ProcessingBranchInfo(branchInfo) {
     if(branchInfo.Unipok){
         document.getElementById('posUnipok').classList.replace('btn-danger','btn-success');
         document.getElementById("posUnipok").innerHTML = "UNIPOK " + branchInfo.Unipok;
+    }
+
+    if (conversationId !== "" && customerParticipantId !== ""){
+
+        let body = { 
+            'attributes': {
+                "POS-ID": branchInfo.Cislo
+            }
+        };
+
+        conversationsApi.patchConversationParticipantAttributes(conversationId, customerParticipantId, body).then(() => {
+                    console.log('patchConversationParticipantAttributes returned successfully.');
+            }).catch((err) => {
+                    console.log('There was a failure calling patchConversationParticipantAttributes');
+                    console.error(err);
+            });
     }
 }
 
