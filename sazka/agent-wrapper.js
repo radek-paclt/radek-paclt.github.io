@@ -3,11 +3,9 @@ const platformClient = require('platformClient');
 const client = platformClient.ApiClient.instance;
 const conversationsApi = new platformClient.ConversationsApi();
 const usersApi = new platformClient.UsersApi();
+const notificationsApi = new platformClient.NotificationsApi();
 
-//const redirectUri = 'https://radek-paclt.github.io/sazka/index.html';
 var redirectUri = window.location.href.split('?')[0];
-//https://radek-paclt.github.io/sazka/index.html
-//http://localhost:5500/index.html
 
 // Set PureCloud settings
 client.setEnvironment('mypurecloud.de');
@@ -17,6 +15,8 @@ const queryString = window.location.search;
 console.log(queryString);
 const urlParams = new URLSearchParams(queryString);
 
+let conversationId, communicationId, welcomeMessage = "";
+
 document.addEventListener("DOMContentLoaded", function(){
     console.debug("starting custom app");
     client.loginImplicitGrant(clientId, redirectUri)
@@ -25,34 +25,96 @@ document.addEventListener("DOMContentLoaded", function(){
         })
         .then((userMe) => {
             console.log('userMe: ', userMe);
-            me = userMe;
+            me = userMe;      
+            
             if (urlParams.has('conversationId') && urlParams.has('communicationId')){
-                let communicationId = urlParams.get('communicationId');
-                let conversationId = urlParams.get('conversationId');
+                communicationId = urlParams.get('communicationId');
+                conversationId = urlParams.get('conversationId');
                 console.log("conversationId: " + conversationId);
                 console.log("communicationId: " + communicationId);
-
-                let messageContent = "Dobrý den, jmenuji se " + me.name + " a budu se snažit Vám dnes pomoci.";
-                let body = { "textBody": messageContent }; // Object | Message
-                let opts = { 
-                'useNormalizedMessage': true // Boolean | If true, response removes deprecated fields (textBody, media, stickers)
-                };
-
-                conversationsApi.postConversationsMessageCommunicationMessages(conversationId, communicationId, body, opts)
-                    .then((data) => {
-                        console.log(`postConversationsMessageCommunicationMessages success! data: ${JSON.stringify(data, null, 2)}`);
-                        const pageMessage = document.getElementById("message");
-                        pageMessage.innerText = "Welcome message sent: " + messageContent;
-                    })
-                    .catch((err) => {
-                        console.log('There was a failure calling postConversationsMessageCommunicationMessages');
-                        const pageMessage = document.getElementById("message");
-                        pageMessage.innerText = "Welcome message failed";
-                        console.error(err);
-                    });
             }
-        })
+            
+            return notificationsApi.postNotificationsChannels();
+        }).then((channel) => {
+			console.log('channel: ', channel);
+			notificationChannel = channel;
+
+			// Set up web socket
+			webSocket = new WebSocket(notificationChannel.connectUri);
+			webSocket.onmessage = handleNotification;
+
+			// Subscribe to authenticated user's conversations
+            //v2.users.{id}.conversations.messages
+			conversationsTopic = 'v2.users.' + me.id + '.conversations.messages';
+
+			const NotificationBody = [ { id: conversationsTopic } ];
+			return notificationsApi.putNotificationsChannelSubscriptions(notificationChannel.id, NotificationBody);
+		})
         .catch((err) => {
             console.error(err)
         });
 });
+
+function handleNotification(message) {
+	// Parse notification string to a JSON object
+	const notification = JSON.parse(message.data);
+
+	// Discard unwanted notifications
+	if (notification.topicName.toLowerCase() === 'channel.metadata') {
+		console.info('Ignoring metadata: ', notification);
+        return;
+	} else if (notification.topicName.toLowerCase() === conversationsTopic.toLowerCase()) {
+		console.debug('Notification: ', notification);
+        if (isConversationDisconnected(notification.eventBody)) {
+            return;
+        } else {
+
+            if (notification.eventBody.id === conversationId)
+            {
+                for (let participant of notification.eventBody.participants) {
+                    if (participant.attributes && participant.attributes.hasOwnProperty("Agent Message")){
+                        welcomeMessage = participant.attributes['Agent Message'];
+                    }
+                };
+
+                if (conversationId !== '' && communicationId !== '' && welcomeMessage !== ''){
+                    let messageContent = welcomeMessage.replace("{{nickname}}",me.name);
+    
+                    let body = { "textBody": messageContent };
+                    let opts = { 
+                        'useNormalizedMessage': true
+                    };
+    
+                    conversationsApi.postConversationsMessageCommunicationMessages(conversationId, communicationId, body, opts)
+                        .then((data) => {
+                            console.log(`postConversationsMessageCommunicationMessages success! data: ${JSON.stringify(data, null, 2)}`);
+                            const pageMessage = document.getElementById("message");
+                            pageMessage.innerText = "Welcome message sent: " + messageContent;
+                        })
+                        .catch((err) => {
+                            console.log('There was a failure calling postConversationsMessageCommunicationMessages');
+                            const pageMessage = document.getElementById("message");
+                            pageMessage.innerText = "Welcome message failed";
+                            console.error(err);
+                        });
+                }
+            }
+        }
+        return;
+    } else {
+        console.warn('Unknown notification: ', notification);
+    return;
+  }
+}
+
+function isConversationDisconnected(conversation) {
+	let isConnected = false;
+	conversation.participants.some((participant) => {
+		if (participant.state === 'connected') {
+			isConnected = true;
+			return true;
+		}
+	});
+
+	return !isConnected;
+}

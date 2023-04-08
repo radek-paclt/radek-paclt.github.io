@@ -20,7 +20,6 @@ client.setPersistSettings(true, 'agent-helper-app');
 
 const queryString = window.location.search;
 console.log(queryString);
-const urlParams = new URLSearchParams(queryString);
 
 const forms = document.querySelectorAll('.needs-validation')
 
