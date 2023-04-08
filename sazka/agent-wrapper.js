@@ -11,12 +11,6 @@ var redirectUri = window.location.href.split('?')[0];
 client.setEnvironment('mypurecloud.de');
 client.setPersistSettings(true, 'agent-helper-app');
 
-const queryString = window.location.search;
-console.log(queryString);
-const urlParams = new URLSearchParams(queryString);
-
-let conversationId, communicationId, welcomeMessage, executedConversationId = "";
-
 document.addEventListener("DOMContentLoaded", function(){
     console.debug("starting custom app");
     client.loginImplicitGrant(clientId, redirectUri)
@@ -25,33 +19,7 @@ document.addEventListener("DOMContentLoaded", function(){
         })
         .then((userMe) => {
             console.log('userMe: ', userMe);
-            me = userMe;      
-            
-            if (urlParams.has('conversationId') && urlParams.has('communicationId')){
-                communicationId = urlParams.get('communicationId');
-                conversationId = urlParams.get('conversationId');
-                console.log("conversationId: " + conversationId);
-                console.log("communicationId: " + communicationId);
-            }
-
-            conversationsApi.getConversations()
-            .then((data) => {
-                console.log(`getConversations success! data: ${JSON.stringify(data, null, 2)}`);
-                if(data.entities.length > 0){
-                    for(const entity of data.entities){
-                        if (entity.id === conversationId && executedConversationId !== conversationId)
-                        {
-                            executedConversationId = conversationId;
-                            sendWelcomeMessage(entity);
-                        }
-                    }
-                }
-            })
-            .catch((err) => {
-                console.log('There was a failure calling getConversations');
-                console.error(err);
-            });
-            
+            me = userMe;         
             return notificationsApi.postNotificationsChannels();
         }).then((channel) => {
 			console.log('channel: ', channel);
@@ -63,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
 			// Subscribe to authenticated user's conversations
             //v2.users.{id}.conversations.messages
-			conversationsTopic = 'v2.users.' + me.id + '.conversations.messages';
+			conversationsTopic = 'v2.users.' + me.id + '.conversations';
 
 			const NotificationBody = [ { id: conversationsTopic } ];
 			return notificationsApi.putNotificationsChannelSubscriptions(notificationChannel.id, NotificationBody);
@@ -72,6 +40,7 @@ document.addEventListener("DOMContentLoaded", function(){
             console.error(err)
         });
 });
+
 
 function handleNotification(message) {
 	// Parse notification string to a JSON object
@@ -83,15 +52,16 @@ function handleNotification(message) {
         return;
 	} else if (notification.topicName.toLowerCase() === conversationsTopic.toLowerCase()) {
 		console.debug('Notification: ', notification);
+        const welcomeSent = localStorage.getItem("welcome-chatbot-" + notification.eventBody.id);
+        if (welcomeSent === notification.eventBody.id)
+            return;
+
         if (isConversationDisconnected(notification.eventBody)) {
             return;
         } else {
-            console.log(`${notification.eventBody.id} = ${conversationId} = ${executedConversationId}`);
-            if (notification.eventBody.id === conversationId && executedConversationId !== conversationId)
-            {
-                executedConversationId = conversationId;
-                sendWelcomeMessage(notification.eventBody);
-            }
+            localStorage.setItem("welcome-chatbot-" + notification.eventBody.id, notification.eventBody.id);
+            executedConversationId = notification.eventBody.id;
+            sendWelcomeMessage(notification.eventBody);
         }
         return;
     } else {
@@ -101,7 +71,14 @@ function handleNotification(message) {
 }
 
 function sendWelcomeMessage(entity){
+    var welcomeMessage = "";
+    var conversationId = entity.id;
+    var communicationId = "";
     for (let participant of entity.participants) {
+        if (participant.purpose === 'agent'){
+            communicationId = participant.messages[0].id;
+        }
+
         if (participant.attributes && participant.attributes.hasOwnProperty("Agent Message")){
             welcomeMessage = participant.attributes['Agent Message'];
         }
@@ -119,12 +96,12 @@ function sendWelcomeMessage(entity){
             .then((data) => {
                 console.log(`postConversationsMessageCommunicationMessages success! data: ${JSON.stringify(data, null, 2)}`);
                 const pageMessage = document.getElementById("message");
-                pageMessage.innerText = "Welcome message sent: " + messageContent;
+                pageMessage.innerText = "Uvítáno";
             })
             .catch((err) => {
                 console.log('There was a failure calling postConversationsMessageCommunicationMessages');
                 const pageMessage = document.getElementById("message");
-                pageMessage.innerText = "Welcome message failed";
+                pageMessage.innerText = "CHYBA";
                 console.error(err);
             });
     }
@@ -133,7 +110,7 @@ function sendWelcomeMessage(entity){
 function isConversationDisconnected(conversation) {
 	let isConnected = false;
 	conversation.participants.some((participant) => {
-		if (participant.state === 'connected') {
+		if (participant.messages[0].state === 'connected') {
 			isConnected = true;
 			return true;
 		}
