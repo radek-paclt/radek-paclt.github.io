@@ -15,8 +15,7 @@ const queryString = window.location.search;
 console.log(queryString);
 const urlParams = new URLSearchParams(queryString);
 
-let conversationId, communicationId, welcomeMessage = "";
-let executedConversationId = "";
+let conversationId, communicationId, welcomeMessage, executedConversationId = "";
 
 document.addEventListener("DOMContentLoaded", function(){
     console.debug("starting custom app");
@@ -69,9 +68,11 @@ function handleNotification(message) {
         if (isConversationDisconnected(notification.eventBody)) {
             return;
         } else {
-
+            console.log(`${notification.eventBody.id} = ${conversationId} = ${executedConversationId}`);
             if (notification.eventBody.id === conversationId && executedConversationId !== conversationId)
             {
+                executedConversationId = conversationId;
+
                 for (let participant of notification.eventBody.participants) {
                     if (participant.attributes && participant.attributes.hasOwnProperty("Agent Message")){
                         welcomeMessage = participant.attributes['Agent Message'];
@@ -80,8 +81,7 @@ function handleNotification(message) {
 
                 if (conversationId !== '' && communicationId !== '' && welcomeMessage !== ''){
                     let messageContent = welcomeMessage.replace("{{nickname}}",me.name);
-                    executedConversationId = conversationId;
-                    
+
                     let body = { "textBody": messageContent };
                     let opts = { 
                         'useNormalizedMessage': true
