@@ -33,6 +33,24 @@ document.addEventListener("DOMContentLoaded", function(){
                 console.log("conversationId: " + conversationId);
                 console.log("communicationId: " + communicationId);
             }
+
+            conversationsApi.getConversations()
+            .then((data) => {
+                console.log(`getConversations success! data: ${JSON.stringify(data, null, 2)}`);
+                if(data.entities.length > 0){
+                    for(const entity of data.entities){
+                        if (entity.id === conversationId && executedConversationId !== conversationId)
+                        {
+                            executedConversationId = conversationId;
+                            sendWelcomeMessage(entity);
+                        }
+                    }
+                }
+            })
+            .catch((err) => {
+                console.log('There was a failure calling getConversations');
+                console.error(err);
+            });
             
             return notificationsApi.postNotificationsChannels();
         }).then((channel) => {
@@ -72,34 +90,7 @@ function handleNotification(message) {
             if (notification.eventBody.id === conversationId && executedConversationId !== conversationId)
             {
                 executedConversationId = conversationId;
-
-                for (let participant of notification.eventBody.participants) {
-                    if (participant.attributes && participant.attributes.hasOwnProperty("Agent Message")){
-                        welcomeMessage = participant.attributes['Agent Message'];
-                    }
-                };
-
-                if (conversationId !== '' && communicationId !== '' && welcomeMessage !== ''){
-                    let messageContent = welcomeMessage.replace("{{nickname}}",me.name);
-
-                    let body = { "textBody": messageContent };
-                    let opts = { 
-                        'useNormalizedMessage': true
-                    };
-    
-                    conversationsApi.postConversationsMessageCommunicationMessages(conversationId, communicationId, body, opts)
-                        .then((data) => {
-                            console.log(`postConversationsMessageCommunicationMessages success! data: ${JSON.stringify(data, null, 2)}`);
-                            const pageMessage = document.getElementById("message");
-                            pageMessage.innerText = "Welcome message sent: " + messageContent;
-                        })
-                        .catch((err) => {
-                            console.log('There was a failure calling postConversationsMessageCommunicationMessages');
-                            const pageMessage = document.getElementById("message");
-                            pageMessage.innerText = "Welcome message failed";
-                            console.error(err);
-                        });
-                }
+                sendWelcomeMessage(notification.eventBody);
             }
         }
         return;
@@ -107,6 +98,36 @@ function handleNotification(message) {
         console.warn('Unknown notification: ', notification);
     return;
   }
+}
+
+function sendWelcomeMessage(entity){
+    for (let participant of entity.participants) {
+        if (participant.attributes && participant.attributes.hasOwnProperty("Agent Message")){
+            welcomeMessage = participant.attributes['Agent Message'];
+        }
+    };
+
+    if (conversationId !== '' && communicationId !== '' && welcomeMessage !== ''){
+        let messageContent = welcomeMessage.replace("{{nickname}}",me.name);
+
+        let body = { "textBody": messageContent };
+        let opts = { 
+            'useNormalizedMessage': true
+        };
+
+        conversationsApi.postConversationsMessageCommunicationMessages(conversationId, communicationId, body, opts)
+            .then((data) => {
+                console.log(`postConversationsMessageCommunicationMessages success! data: ${JSON.stringify(data, null, 2)}`);
+                const pageMessage = document.getElementById("message");
+                pageMessage.innerText = "Welcome message sent: " + messageContent;
+            })
+            .catch((err) => {
+                console.log('There was a failure calling postConversationsMessageCommunicationMessages');
+                const pageMessage = document.getElementById("message");
+                pageMessage.innerText = "Welcome message failed";
+                console.error(err);
+            });
+    }
 }
 
 function isConversationDisconnected(conversation) {
